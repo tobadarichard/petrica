@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Petrica</string>
+    <string name="login">Sign in</string>
+    <string name="no_login">Continue</string>
+    <string name="description">For your events and your pleasure</string>
+    <string name="err_sign">An error has occurred please try again</string>
+    <string name="succes_sign">Login successful</string>
+    <string name="need_sign">You need to sign in to do this</string>
+    <string name="need_sign_title">Account necessary</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="offline_mode">Offline mode is enable\nResults may be not accurate</string>
 </resources>
