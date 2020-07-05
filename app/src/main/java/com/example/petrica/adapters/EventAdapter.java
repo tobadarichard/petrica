@@ -1,0 +1,119 @@
+package com.example.petrica.adapters;
+
+import android.graphics.drawable.Drawable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.petrica.R;
+import com.example.petrica.model.Event;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.text.DateFormat;
+import java.util.List;
+
+public class EventAdapter extends BaseAdapter {
+
+    static class ViewHolder{
+        public ImageView image;
+        public TextView title;
+        public TextView theme;
+        public TextView date;
+        public ProgressBar progress;
+    }
+
+    protected List<Event> data;
+    protected LayoutInflater li;
+    public EventAdapter(List<Event> data, LayoutInflater li){
+        this.data = data;
+        this.li = li;
+
+    }
+    public void addData(List<Event> newData){
+        data.addAll(newData);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return data.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder vh;
+        boolean mustAnim = true;
+        if (convertView == null){
+            mustAnim = false;
+            // inflate the view
+            convertView = li.inflate(R.layout.event_list_item,parent,false);
+            vh = new ViewHolder();
+            vh.image = convertView.findViewById(R.id.image);
+            vh.date = convertView.findViewById(R.id.date);
+            vh.theme = convertView.findViewById(R.id.theme);
+            vh.title = convertView.findViewById(R.id.title);
+            vh.progress = convertView.findViewById(R.id.progress);
+            convertView.setTag(vh);
+        }
+        else{
+            vh = (ViewHolder) convertView.getTag();
+        }
+        Event e = (Event) getItem(position);
+        DateFormat df = DateFormat.getDateInstance();
+        vh.date.setText(df.format(e.getDate()));
+        vh.theme.setText(e.getTheme());
+        vh.title.setText(e.getName());
+        vh.image.setVisibility(View.INVISIBLE);
+        vh.progress.setVisibility(View.VISIBLE);
+        vh.progress.setIndeterminate(true);
+        final ProgressBar progressBar = vh.progress;
+        final ImageView imageView = vh.image;
+        Glide.with(vh.image) // Download picture
+                .load(FirebaseStorage.getInstance().getReference().child(e.getImage_path()))
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        imageView.setVisibility(View.VISIBLE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        progressBar.setVisibility(View.GONE);
+                        imageView.setVisibility(View.VISIBLE);
+                        return false;
+                    }
+                })
+                .into(vh.image);
+
+        // During the wait, a waiting picture is shown instead
+        if (mustAnim){
+            convertView.setAlpha(0);
+            convertView.animate().setDuration(500).alpha(1).start();
+        }
+        return convertView;
+    }
+}

@@ -5,9 +5,16 @@
     <string name="description">For your events and your pleasure</string>
     <string name="err_sign">An error has occurred please try again</string>
     <string name="succes_sign">Login successful</string>
+    <string name="already_login">You are already login</string>
     <string name="need_sign">You need to sign in to do this</string>
     <string name="need_sign_title">Account necessary</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="offline_mode">Offline mode is enable\nResults may be not accurate</string>
+    <string name="toolbar_home">Home</string>
+    <string name="toolbar_settings">Settings</string>
+    <string name="toolbar_events">Events</string>
+    <string name="hello_label">Hello %1$s !</string>
+    <string name="no_result">Nothing to show there !</string>
+    <string name="need_sign_follow_events">You must be logged in to see your followed events !</string>
 </resources>

@@ -10,12 +10,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.example.petrica.R;
 import com.example.petrica.model.MyViewModel;
 import com.firebase.ui.auth.AuthUI;
-import com.google.firebase.auth.FirebaseAuth;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
@@ -23,8 +22,6 @@ import java.util.List;
 
 public class AuthenticationActivity extends AppCompatActivity {
     // Activity used to ensure authentication
-
-
     protected MyViewModel model;
     protected FirebaseUser user;
 
@@ -40,6 +37,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         // Recovering the view model
         model = new ViewModelProvider(this).get(MyViewModel.class);
         model.init();
+        user = model.getUser().getValue();
         model.getUser().observe(this, new Observer<FirebaseUser>() {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
@@ -52,28 +50,37 @@ public class AuthenticationActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 // Authentication successful
+                model.getUser();
                 Toast.makeText(this, getString(R.string.succes_sign), Toast.LENGTH_SHORT).show();
             } else {
                 // Authentication failed
-                Toast.makeText(this, getString(R.string.err_sign), Toast.LENGTH_LONG).show();
+                if (response != null) {
+                    Toast.makeText(this, getString(R.string.err_sign), Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
 
     protected void startLogin(){
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
+        if (user != null){
+            Toast.makeText(this,getString(R.string.already_login),Toast.LENGTH_SHORT).show();
+        }
+        else{
+            List<AuthUI.IdpConfig> providers = Arrays.asList(
+                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                    new AuthUI.IdpConfig.GoogleBuilder().build());
 
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .setTheme(R.style.AppTheme)
-                        .build(),
-                RESULT_SIGN_IN);
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setAvailableProviders(providers)
+                            .setTheme(R.style.AppTheme)
+                            .build(),
+                    RESULT_SIGN_IN);
+        }
     }
 
     protected void askLogin(){

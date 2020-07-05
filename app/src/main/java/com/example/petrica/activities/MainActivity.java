@@ -1,146 +1,157 @@
 package com.example.petrica.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.NetworkRequest;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
-import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
 
 import com.example.petrica.R;
+import com.example.petrica.adapters.EventAdapter;
+import com.example.petrica.model.Event;
+import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AuthenticationActivity {
-    protected TextView logo;
-    protected TextView main_label;
-    protected Button button_continue;
-    protected Button button_login;
+import java.util.ArrayList;
+import java.util.List;
 
-
+public class MainActivity extends BaseContentActivity {
+    // This is the main page of the app
+    protected EventAdapter adapterComing;
+    protected EventAdapter adapterFollowed;
+    protected TextView hello;
+    protected boolean hasEmptyMessageComing = false;
+    protected boolean hasEmptyMessageFollowed = false;
+    protected LinearLayout linear;
+    public static final int EMPTY_POSITION_COMING = 5;
+    public static final int EMPTY_POSITION_FOLLOWED = 3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Asking for permissions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.INTERNET},PERMISSION_NETWORK);
-        }
+        // Getting view
+        connState = findViewById(R.id.conn_state);
+        hello = findViewById(R.id.hello_label);
+        linear = findViewById(R.id.linear);
 
-        logo = findViewById(R.id.logo_label);
-        button_continue = findViewById(R.id.button_continue);
-        button_login = findViewById(R.id.button_login);
-        main_label = findViewById(R.id.main_label);
+        // Setting the toolbar
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 
-        // Adding listeners
-        button_continue.setOnClickListener(new View.OnClickListener() {
+        // Setting observer for adapter and coming events
+        adapterComing = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
+        model.getListComingEvents().observe(this, new Observer<List<Event>>() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,WelcomeActivity.class));
+            public void onChanged(List<Event> events) {
+                if (!events.isEmpty()){
+                    // remove the empty message
+                    removeEmptyMessage(EMPTY_POSITION_COMING);
+                    adapterComing.addData(events);
+                }
+                else if (adapterComing.isEmpty()){
+                    // Add the empty message
+                    addEmptyMessage(EMPTY_POSITION_COMING);
+                }
             }
         });
-
-        button_login.setOnClickListener(new View.OnClickListener() {
+        // Setting observer for adapter and followed events
+        adapterFollowed = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
+        model.getListFollowedEvents().observe(this, new Observer<List<Event>>() {
             @Override
-            public void onClick(View v) {
-                startLogin();
-                if (user != null){
-                    button_continue.callOnClick();
+            public void onChanged(List<Event> events) {
+                if (!events.isEmpty()){
+                    // remove the empty message
+                    removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
+                    adapterFollowed.addData(events);
+                }
+                else if (adapterFollowed.isEmpty()){
+                    // Add the empty message
+                    addEmptyMessage(EMPTY_POSITION_FOLLOWED);
                 }
             }
         });
 
-        
-        // Views are visible but transparent by default
-        make_animation(logo.animate(),main_label.animate(),button_login.animate(),button_continue.animate(),savedInstanceState != null);
 
+        // Showing welcome message if user is logged
+        model.getUser().observe(this, new Observer<FirebaseUser>() {
+            @Override
+            public void onChanged(FirebaseUser firebaseUser) {
+                if (firebaseUser != null){
+                    hello.setText(getResources().getString(R.string.hello_label,firebaseUser.getDisplayName()));
+                    hello.setVisibility(View.VISIBLE);
+                    // Activate followed events
+                    if (adapterFollowed.isEmpty()){
+                        model.loadFollowedEvents(firebaseUser);
+                    }
+                }
+                else{
+                    hello.setVisibility(View.INVISIBLE);
+                    addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_follow_events));
+                }
+            }
+        });
+        if (savedInstanceState == null){
+            model.loadComingEvents();
+        }
+        ListView lw1 = findViewById(R.id.coming_events);
+        lw1.setAdapter(adapterComing);
+        ListView lw2 = findViewById(R.id.follow_events);
+        lw2.setAdapter(adapterFollowed);
     }
 
-    private void make_animation(ViewPropertyAnimator animate1, ViewPropertyAnimator animate2, ViewPropertyAnimator animate3, ViewPropertyAnimator animate4,boolean quickMode) {
-        int orientation = getResources().getConfiguration().orientation;
-        int duration1 = quickMode ? 10 : 2000;
-        int duration2 = quickMode ? 10 : 1000;
-        int delay =  quickMode ? 10 : 500;
-        int trans1 = -500;
-        int trans2 = -500;
-        int trans3 = -400;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            trans1 /= 2;
-            trans2 /= 2;
-            trans3 /= 2;
-        }
-
-        // Starting animate
-        // Every view are appearing progressively
-
-        animate1.setStartDelay(delay)
-                .translationYBy(trans1)
-                .setDuration(duration1)
-                .alpha(1);
-        animate1.start();
-
-        animate2.setStartDelay(delay + duration1)
-                .translationYBy(trans2)
-                .setDuration(duration1)
-                .alpha(1);
-
-        animate2.start();
-
-        animate3.setStartDelay(delay + 2*duration1)
-                .setDuration(duration2)
-                .translationYBy(trans3)
-                .alpha(1);
-
-        animate3.start();
-
-        animate4.setStartDelay(delay + 2*duration1)
-                .setDuration(duration2)
-                .translationYBy(trans3)
-                .alpha(1);
-
-        animate4.withEndAction(new Runnable() {
-            @Override
-            public void run() {
-                if (user != null){
-                    button_continue.callOnClick();
+    private void removeEmptyMessage(int emptyPosition) {
+        switch (emptyPosition){
+            case EMPTY_POSITION_COMING:
+                if (!hasEmptyMessageComing){
+                    return;
                 }
-            }
-        });
-        animate4.start();
+                hasEmptyMessageComing = false;
+                break;
+            case EMPTY_POSITION_FOLLOWED:
+                if (!hasEmptyMessageFollowed){
+                    return;
+                }
+                hasEmptyMessageFollowed = false;
+                break;
+        }
+        linear.removeViewAt(emptyPosition);
+    }
+
+    private void addEmptyMessage(int emptyPosition) {
+        addEmptyMessage(emptyPosition,getString(R.string.no_result));
+    }
+
+    private void addEmptyMessage(int emptyPosition,String message) {
+        switch (emptyPosition){
+            case EMPTY_POSITION_COMING:
+                if (hasEmptyMessageComing){
+                    return;
+                }
+                hasEmptyMessageComing = true;
+                break;
+            case EMPTY_POSITION_FOLLOWED:
+                if (hasEmptyMessageFollowed){
+                    return;
+                }
+                hasEmptyMessageFollowed = true;
+                break;
+        }
+        TextView tv = new TextView(this);
+        tv.setText(message);
+        tv.setGravity(Gravity.CENTER);
+        linear.addView(tv,emptyPosition);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_NETWORK){
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED
-                    || grantResults[1] != PackageManager.PERMISSION_GRANTED){
-                // Permissions have not been granted : closing app
-                finish();
-            }
-            else {
-                // Checking connection
-                ConnectivityManager connMgr =
-                        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                boolean conn = connMgr.getActiveNetworkInfo() == null;
-                model.getHasConnection().setValue(conn);
-            }
-
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && user !=null){
+            finish();
+            return true;
         }
+        return super.onKeyDown(keyCode, event);
     }
 }

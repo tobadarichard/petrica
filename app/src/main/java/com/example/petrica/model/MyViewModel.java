@@ -4,20 +4,27 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.petrica.dao.FirestoreDAOEvent;
+import com.example.petrica.dao.FirestoreDAOFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MyViewModel extends ViewModel implements FirebaseAuth.AuthStateListener {
-    // Model containing data that should outlive activities
+import java.util.List;
+
+public class MyViewModel extends ViewModel{
+    // Model containing data that should outlive activity
     private FirebaseAuth firebaseAuthInstance;
-    private MutableLiveData<FirebaseUser> user = new MutableLiveData<FirebaseUser>();
-    private MutableLiveData<Boolean> hasConnection = new MutableLiveData<Boolean>();
+    private MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
+    private MutableLiveData<Boolean> hasConnection = new MutableLiveData<>();
+    private MutableLiveData<List<Event>> listComingEvents = new MutableLiveData<>();
+    private MutableLiveData<List<Event>> listFollowedEvents = new MutableLiveData<>();
+    private MutableLiveData<List<Event>> listSearchEvents = new MutableLiveData<>();
+    private FirestoreDAOEvent DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(listComingEvents,listFollowedEvents,listSearchEvents);
 
     public void init(){
         if (firebaseAuthInstance == null){
             firebaseAuthInstance = FirebaseAuth.getInstance();
-            firebaseAuthInstance.addAuthStateListener(this);
-            user.setValue(null);
+            user.setValue(firebaseAuthInstance.getCurrentUser());
         }
     }
 
@@ -26,19 +33,33 @@ public class MyViewModel extends ViewModel implements FirebaseAuth.AuthStateList
     }
 
     public MutableLiveData<FirebaseUser> getUser() {
+        user.setValue(firebaseAuthInstance.getCurrentUser());
         return user;
     }
 
-    @Override
-    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null){
-            user.setValue(null);        }
-        else{
-            user.setValue(firebaseAuthInstance.getCurrentUser());
-        }
+    public MutableLiveData<List<Event>> getListComingEvents() {
+        return listComingEvents;
+    }
+
+    public MutableLiveData<List<Event>> getListFollowedEvents() {
+        return listFollowedEvents;
+    }
+
+    public MutableLiveData<List<Event>> getListSearchEvents() {
+        return listSearchEvents;
     }
 
     public MutableLiveData<Boolean> getHasConnection() {
         return hasConnection;
+    }
+
+    public void loadComingEvents() {
+        DAOEvent.getComingEvents(5);
+    }
+
+    public void loadFollowedEvents(FirebaseUser u) {
+        if (u != null){
+            DAOEvent.getFollowedEvents(5,u.getUid());
+        }
     }
 }
