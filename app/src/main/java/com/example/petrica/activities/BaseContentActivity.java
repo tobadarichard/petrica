@@ -1,5 +1,6 @@
 package com.example.petrica.activities;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -9,12 +10,13 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.example.petrica.R;
 import com.example.petrica.receivers.NetworkReceiver;
 
-public class BaseContentActivity extends AuthenticationActivity{
+public abstract class BaseContentActivity extends AuthenticationActivity{
     // Base activity containing content
     protected NetworkReceiver networkReceiver;
     protected TextView connState; // TextView stating there is no connection
@@ -46,6 +48,14 @@ public class BaseContentActivity extends AuthenticationActivity{
 
     }
 
+    public void setupHeader(int layout){
+        setContentView(layout);
+        // Setting the toolbar
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
+        // Getting view
+        connState = findViewById(R.id.conn_state);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -59,12 +69,25 @@ public class BaseContentActivity extends AuthenticationActivity{
         // TODO : Menu
         switch(item.getItemId()){
             case R.id.toolbar_event:
+                if (!(this instanceof SearchActivity)){
+                    Intent intent = new Intent(BaseContentActivity.this,SearchActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                }
                 break;
             case R.id.toolbar_home:
+                if (!(this instanceof MainActivity)){
+                    Intent intent = new Intent(BaseContentActivity.this,MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                }
                 break;
             case R.id.toolbar_setting:
                 if (user == null){
                     askLogin();
+                }
+                else{
+                    // TODO : Starting settings activity
                 }
                 break;
         }

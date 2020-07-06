@@ -20,7 +20,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Arrays;
 import java.util.List;
 
-public class AuthenticationActivity extends AppCompatActivity {
+public abstract class AuthenticationActivity extends AppCompatActivity {
     // Activity used to ensure authentication
     protected MyViewModel model;
     protected FirebaseUser user;

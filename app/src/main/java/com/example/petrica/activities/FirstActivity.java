@@ -46,26 +46,25 @@ public class FirstActivity extends AuthenticationActivity {
         button_continue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FirstActivity.this, MainActivity.class),
-                        ActivityOptions.makeSceneTransitionAnimation(FirstActivity.this).toBundle());
+                startActivity(new Intent(FirstActivity.this, MainActivity.class));
+                FirstActivity.this.finish();
             }
         });
-
         button_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startLogin();
-                if (user != null){
-                    button_continue.callOnClick();
-                }
             }
         });
         // Views are visible but transparent by default
-        make_animation(logo.animate(),main_label.animate(),button_login.animate(),button_continue.animate(),savedInstanceState != null);
-
+        make_animation(savedInstanceState != null);
     }
 
-    private void make_animation(ViewPropertyAnimator animate1, ViewPropertyAnimator animate2, ViewPropertyAnimator animate3, ViewPropertyAnimator animate4,boolean quickMode) {
+    private void make_animation(boolean quickMode) {
+        ViewPropertyAnimator animate1 = logo.animate();
+        ViewPropertyAnimator animate2 = main_label.animate();
+        ViewPropertyAnimator animate3 = button_login.animate();
+        ViewPropertyAnimator animate4 = button_continue.animate();
         int orientation = getResources().getConfiguration().orientation;
         int duration1 = quickMode ? 10 : 2000;
         int duration2 = quickMode ? 10 : 1000;
@@ -106,7 +105,6 @@ public class FirstActivity extends AuthenticationActivity {
                 .setDuration(duration2)
                 .translationYBy(trans3)
                 .alpha(1);
-
         animate4.withEndAction(new Runnable() {
             @Override
             public void run() {
@@ -134,7 +132,6 @@ public class FirstActivity extends AuthenticationActivity {
                 boolean conn = connMgr.getActiveNetworkInfo() == null;
                 model.getHasConnection().setValue(conn);
             }
-
         }
     }
 }

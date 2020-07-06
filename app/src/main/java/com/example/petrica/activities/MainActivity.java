@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer;
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
 import com.example.petrica.model.Event;
+import com.example.petrica.views.NonScrollListView;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
@@ -32,25 +33,23 @@ public class MainActivity extends BaseContentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setupHeader(R.layout.activity_main);
 
         // Getting view
-        connState = findViewById(R.id.conn_state);
         hello = findViewById(R.id.hello_label);
         linear = findViewById(R.id.linear);
 
-        // Setting the toolbar
-        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
-
         // Setting observer for adapter and coming events
         adapterComing = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
+        NonScrollListView lw1 = findViewById(R.id.coming_events);
+        lw1.setAdapter(adapterComing);
         model.getListComingEvents().observe(this, new Observer<List<Event>>() {
             @Override
             public void onChanged(List<Event> events) {
-                if (!events.isEmpty()){
+                adapterComing.addData(events);
+                if (events != null && !events.isEmpty()){
                     // remove the empty message
                     removeEmptyMessage(EMPTY_POSITION_COMING);
-                    adapterComing.addData(events);
                 }
                 else if (adapterComing.isEmpty()){
                     // Add the empty message
@@ -60,13 +59,16 @@ public class MainActivity extends BaseContentActivity {
         });
         // Setting observer for adapter and followed events
         adapterFollowed = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
+        NonScrollListView lw2 = findViewById(R.id.follow_events);
+        lw2.setAdapter(adapterFollowed);
         model.getListFollowedEvents().observe(this, new Observer<List<Event>>() {
             @Override
             public void onChanged(List<Event> events) {
-                if (!events.isEmpty()){
+                adapterFollowed.addData(events);
+                if (events != null && !events.isEmpty()){
                     // remove the empty message
                     removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
-                    adapterFollowed.addData(events);
+
                 }
                 else if (adapterFollowed.isEmpty()){
                     // Add the empty message
@@ -74,7 +76,6 @@ public class MainActivity extends BaseContentActivity {
                 }
             }
         });
-
 
         // Showing welcome message if user is logged
         model.getUser().observe(this, new Observer<FirebaseUser>() {
@@ -84,9 +85,7 @@ public class MainActivity extends BaseContentActivity {
                     hello.setText(getResources().getString(R.string.hello_label,firebaseUser.getDisplayName()));
                     hello.setVisibility(View.VISIBLE);
                     // Activate followed events
-                    if (adapterFollowed.isEmpty()){
-                        model.loadFollowedEvents(firebaseUser);
-                    }
+                    model.loadFollowedEvents(firebaseUser);
                 }
                 else{
                     hello.setVisibility(View.INVISIBLE);
@@ -94,13 +93,7 @@ public class MainActivity extends BaseContentActivity {
                 }
             }
         });
-        if (savedInstanceState == null){
-            model.loadComingEvents();
-        }
-        ListView lw1 = findViewById(R.id.coming_events);
-        lw1.setAdapter(adapterComing);
-        ListView lw2 = findViewById(R.id.follow_events);
-        lw2.setAdapter(adapterFollowed);
+        model.loadComingEvents();
     }
 
     private void removeEmptyMessage(int emptyPosition) {
@@ -144,14 +137,5 @@ public class MainActivity extends BaseContentActivity {
         tv.setText(message);
         tv.setGravity(Gravity.CENTER);
         linear.addView(tv,emptyPosition);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && user !=null){
-            finish();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 }

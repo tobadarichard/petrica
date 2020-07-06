@@ -23,14 +23,19 @@ public class FirestoreDAOEvent {
     protected MutableLiveData<List<Event>> searchEvents;
     protected DocumentSnapshot lastVisible;
     protected Query lastQuery;
+    protected String lastName;
 
     private class FilteredEventsResultListener implements OnCompleteListener<QuerySnapshot>{
         private int maxVal;
         private  MutableLiveData<List<Event>> whichEvents;
+        private String name;
+        private boolean mustErase;
 
-        public FilteredEventsResultListener(int maxVal,MutableLiveData<List<Event>> whichEvents) {
+        public FilteredEventsResultListener(int maxVal,MutableLiveData<List<Event>> whichEvents,String name,boolean mustErase) {
             this.whichEvents = whichEvents;
             this.maxVal = maxVal;
+            this.name = name;
+            this.mustErase = mustErase;
         }
 
         @Override
@@ -48,13 +53,24 @@ public class FirestoreDAOEvent {
                 }
                 List<Event> events = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : task.getResult()) {
-                    events.add(Event.getFrom(doc));
+                    // Filtred by name
+                    if (name == null || doc.getString("name").contains(name)){
+                        events.add(Event.getFrom(doc));
+                    }
                 }
                 // Results are send to observers
+                if (mustErase){
+                    whichEvents.setValue(null);
+                }
                 whichEvents.setValue(events);
             }
             else{
-                whichEvents.setValue(new ArrayList<Event>());
+                if (mustErase){
+                    whichEvents.setValue(null);
+                }
+                else{
+                    whichEvents.setValue(new ArrayList<Event>());
+                }
             }
         }
     }
@@ -66,7 +82,7 @@ public class FirestoreDAOEvent {
         this.searchEvents = searchEvents;
     }
 
-    protected Query getFilteredQuery(Date minDate, Date maxDate, String name_org, String name, String theme){
+    protected Query getFilteredQuery(Date minDate, Date maxDate, String name_org, String theme){
         // Return a query corresponding to criteria
         Query request = db.collection("events");
         if (name_org != null)
@@ -80,42 +96,48 @@ public class FirestoreDAOEvent {
         return request.orderBy("date");
     }
 
-    public void getFilteredEvents(MutableLiveData<List<Event>> whichEvents,int howMany, Date minDate, Date maxDate, String name_org, String name, String theme){
+    public void getFilteredEvents(final MutableLiveData<List<Event>> whichEvents, int howMany, final Date minDate, final Date maxDate
+            , final String name_org, final String name, final String theme, String uid, final boolean mustErase){
         // Retrieve the "num" last events filtered by criteria
-        Query request = getFilteredQuery(minDate, maxDate, name_org, name, theme);
-        lastQuery = request;
-        int maxVal = Math.min(howMany,20);
-        request.limit(maxVal).get().addOnCompleteListener(new FilteredEventsResultListener(maxVal,whichEvents));
-    }
-
-    public void getComingEvents(int num) {
-        // Retrieve the "num" last events (by date)
-        getFilteredEvents(comingEvents,num,new Date(), null, null, null, null);
-    }
-
-    public void getFollowedEvents(final int num, String uid) {
-        db.collection("followed").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-                    DocumentSnapshot doc = task.getResult();
-                    List<String> ids = doc.exists() ? ((List<String>) (doc.getData().get("events_followed"))) : new ArrayList<String>();
-                    Query request = getFilteredQuery(new Date(), null, null, null, null).whereIn("id_event",ids);
-                    lastQuery = request;
-                    final int maxVal = Math.min(num,20);
-                    request.limit(maxVal).get().addOnCompleteListener(new FilteredEventsResultListener(maxVal,followedEvents));
+        final int maxVal = Math.min(howMany,20);
+        lastName = name;
+        if (uid != null){
+            db.collection("followed").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()){
+                        DocumentSnapshot doc = task.getResult();
+                        List<String> ids = doc.exists() ? ((List<String>) (doc.getData().get("events_followed"))) : new ArrayList<String>();
+                        Query request = getFilteredQuery(minDate, maxDate, name_org, theme).whereIn("id_event",ids);
+                        lastQuery = request;
+                        request.limit(maxVal).get().addOnCompleteListener(new FilteredEventsResultListener(maxVal,whichEvents,name,mustErase));
+                    }
+                    else{
+                        whichEvents.setValue(new ArrayList<Event>());
+                    }
                 }
-                else{
-                    followedEvents.setValue(new ArrayList<Event>());
-                }
-            }
-        });
+            });
+        }
+        else{
+            Query request = getFilteredQuery(minDate, maxDate, name_org, theme);
+            lastQuery = request;
+            request.limit(maxVal).get().addOnCompleteListener(new FilteredEventsResultListener(maxVal,whichEvents,name,mustErase));
+        }
     }
 
     public void getNextEvents(MutableLiveData<List<Event>> whichEvents){
         // Get the following events
         if (lastQuery != null && lastVisible != null){
-            lastQuery.startAfter(lastVisible).limit(20).get().addOnCompleteListener(new FilteredEventsResultListener(20,whichEvents));
+            lastQuery.startAfter(lastVisible).limit(20).get().addOnCompleteListener(new FilteredEventsResultListener(20,whichEvents,lastName,false));
         }
+    }
+
+    public void getComingEvents(int num) {
+        // Retrieve the "num" last events (by date)
+        getFilteredEvents(comingEvents,num,new Date(), null, null, null, null,null,true);
+    }
+
+    public void getFollowedEvents(final int num, String uid) {
+        getFilteredEvents(followedEvents,num,new Date(), null, null, null, null,uid,true);
     }
 }

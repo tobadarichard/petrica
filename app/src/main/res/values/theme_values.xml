@@ -1,0 +1,7 @@
+<resources>
+    <string-array name="theme_values">
+        <item>Music</item>
+        <item>Any</item>
+        <item>Dance</item>
+    </string-array>
+</resources>

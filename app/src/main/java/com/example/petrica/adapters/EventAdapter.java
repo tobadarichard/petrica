@@ -42,8 +42,15 @@ public class EventAdapter extends BaseAdapter {
 
     }
     public void addData(List<Event> newData){
-        data.addAll(newData);
+        if (newData == null){
+            data.clear();
+        }
+        else{
+            data.addAll(newData);
+        }
         notifyDataSetChanged();
+
+
     }
 
     @Override
@@ -64,9 +71,7 @@ public class EventAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder vh;
-        boolean mustAnim = true;
         if (convertView == null){
-            mustAnim = false;
             // inflate the view
             convertView = li.inflate(R.layout.event_list_item,parent,false);
             vh = new ViewHolder();
@@ -85,6 +90,7 @@ public class EventAdapter extends BaseAdapter {
         vh.date.setText(df.format(e.getDate()));
         vh.theme.setText(e.getTheme());
         vh.title.setText(e.getName());
+        // During the wait for downloading the picture, a progress bar is shown instead
         vh.image.setVisibility(View.INVISIBLE);
         vh.progress.setVisibility(View.VISIBLE);
         vh.progress.setIndeterminate(true);
@@ -108,12 +114,6 @@ public class EventAdapter extends BaseAdapter {
                     }
                 })
                 .into(vh.image);
-
-        // During the wait, a waiting picture is shown instead
-        if (mustAnim){
-            convertView.setAlpha(0);
-            convertView.animate().setDuration(500).alpha(1).start();
-        }
         return convertView;
     }
 }

@@ -9,6 +9,7 @@ import com.example.petrica.dao.FirestoreDAOFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Date;
 import java.util.List;
 
 public class MyViewModel extends ViewModel{
@@ -19,13 +20,14 @@ public class MyViewModel extends ViewModel{
     private MutableLiveData<List<Event>> listComingEvents = new MutableLiveData<>();
     private MutableLiveData<List<Event>> listFollowedEvents = new MutableLiveData<>();
     private MutableLiveData<List<Event>> listSearchEvents = new MutableLiveData<>();
-    private FirestoreDAOEvent DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(listComingEvents,listFollowedEvents,listSearchEvents);
+    private FirestoreDAOEvent DAOEvent;
 
     public void init(){
         if (firebaseAuthInstance == null){
             firebaseAuthInstance = FirebaseAuth.getInstance();
             user.setValue(firebaseAuthInstance.getCurrentUser());
         }
+        DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(listComingEvents,listFollowedEvents,listSearchEvents);
     }
 
     public FirebaseAuth getFirebaseAuthInstance() {
@@ -61,5 +63,11 @@ public class MyViewModel extends ViewModel{
         if (u != null){
             DAOEvent.getFollowedEvents(5,u.getUid());
         }
+    }
+
+
+    public void searchEvents(Date min, Date max, String nameOrg, String name, String theme,String uid) {
+        DAOEvent.getFilteredEvents(listSearchEvents,10,min,max,nameOrg,name,theme,uid,true);
+
     }
 }

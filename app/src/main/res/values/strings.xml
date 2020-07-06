@@ -17,4 +17,12 @@
     <string name="hello_label">Hello %1$s !</string>
     <string name="no_result">Nothing to show there !</string>
     <string name="need_sign_follow_events">You must be logged in to see your followed events !</string>
+    <string name="form_label_orga">Organiser\'s name :</string>
+    <string name="form_label_theme">Theme :</string>
+    <string name="form_label_date_min">Events happening after : </string>
+    <string name="form_label_date_max">Events happening before : </string>
+    <string name="form_button_search">Search</string>
+    <string name="form_no_result">No results found</string>
+    <string name="form_results">Results found : </string>
+    <string name="form_label_only_follow">Only show events I\'m following</string>
 </resources>
