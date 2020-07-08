@@ -54,11 +54,11 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Authentication successful
                 model.getUser();
-                Toast.makeText(this, getString(R.string.succes_sign), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.success_sign), Toast.LENGTH_SHORT).show();
             } else {
                 // Authentication failed
                 if (response != null) {
-                    Toast.makeText(this, getString(R.string.err_sign), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.err_retry), Toast.LENGTH_LONG).show();
                 }
             }
         }

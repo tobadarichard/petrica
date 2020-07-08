@@ -1,11 +1,12 @@
 package com.example.petrica.model;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.petrica.dao.FirestoreDAOEvent;
 import com.example.petrica.dao.FirestoreDAOFactory;
+import com.example.petrica.dao.FirestoreDAORating;
+import com.example.petrica.dao.ServerResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -17,17 +18,18 @@ public class MyViewModel extends ViewModel{
     private FirebaseAuth firebaseAuthInstance;
     private MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
     private MutableLiveData<Boolean> hasConnection = new MutableLiveData<>();
-    private MutableLiveData<List<Event>> listComingEvents = new MutableLiveData<>();
-    private MutableLiveData<List<Event>> listFollowedEvents = new MutableLiveData<>();
-    private MutableLiveData<List<Event>> listSearchEvents = new MutableLiveData<>();
+    private MutableLiveData<ServerResponse> serverResponseLiveData = new MutableLiveData<>();
     private FirestoreDAOEvent DAOEvent;
+    private FirestoreDAORating DAORating;
+    private List<Event> savedSearch;
 
     public void init(){
         if (firebaseAuthInstance == null){
             firebaseAuthInstance = FirebaseAuth.getInstance();
             user.setValue(firebaseAuthInstance.getCurrentUser());
         }
-        DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(listComingEvents,listFollowedEvents,listSearchEvents);
+        DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(serverResponseLiveData);
+        DAORating = FirestoreDAOFactory.getFactory().getDAORating(serverResponseLiveData);
     }
 
     public FirebaseAuth getFirebaseAuthInstance() {
@@ -39,18 +41,6 @@ public class MyViewModel extends ViewModel{
         return user;
     }
 
-    public MutableLiveData<List<Event>> getListComingEvents() {
-        return listComingEvents;
-    }
-
-    public MutableLiveData<List<Event>> getListFollowedEvents() {
-        return listFollowedEvents;
-    }
-
-    public MutableLiveData<List<Event>> getListSearchEvents() {
-        return listSearchEvents;
-    }
-
     public MutableLiveData<Boolean> getHasConnection() {
         return hasConnection;
     }
@@ -59,15 +49,46 @@ public class MyViewModel extends ViewModel{
         DAOEvent.getComingEvents(5);
     }
 
-    public void loadFollowedEvents(FirebaseUser u) {
+    public void loadRegisteredEvents(FirebaseUser u) {
         if (u != null){
-            DAOEvent.getFollowedEvents(5,u.getUid());
+            DAOEvent.getRegisteredEvents(5,u.getUid());
         }
     }
 
+    public MutableLiveData<ServerResponse> getServerResponseLiveData() {
+        return serverResponseLiveData;
+    }
 
-    public void searchEvents(Date min, Date max, String nameOrg, String name, String theme,String uid) {
-        DAOEvent.getFilteredEvents(listSearchEvents,10,min,max,nameOrg,name,theme,uid,true);
+    public void searchEvents(Date min, Date max, String nameOrg, String name, String theme, String uid) {
+        DAOEvent.getFilteredEvents(ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST,ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST,10,min,max,nameOrg,name,theme,uid);
 
+    }
+
+    public void getInfoUserOnEvent(String uid,String id_event){
+        DAOEvent.getInfoUserOnEvent(uid,id_event);
+    }
+
+    public void writeRating(Rating rating,String id_event){
+        DAORating.rate(rating,id_event);
+    }
+
+    public void unwriteRating(String uid,String id_event){
+        DAORating.unrate(uid,id_event);
+    }
+
+    public void writeRegister(String uid, String id_event) {
+        DAOEvent.register(uid,id_event);
+    }
+
+    public void unwriteRegister(String uid, String id_event) {
+        DAOEvent.unregister(uid,id_event);
+    }
+
+    public List<Event> getSavedSearch() {
+        return savedSearch;
+    }
+
+    public void setSavedSearch(List<Event> savedSearch) {
+        this.savedSearch = savedSearch;
     }
 }

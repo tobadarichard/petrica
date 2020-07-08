@@ -118,7 +118,7 @@
                 android:gravity="center"
                 android:text="@string/form_label_date_min"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/label_only_follow" />
+                app:layout_constraintTop_toBottomOf="@+id/label_only_registered" />
 
             <Switch
                 android:id="@+id/switch_date_min"
@@ -128,7 +128,7 @@
                 android:layout_marginTop="30dp"
                 android:checked="true"
                 app:layout_constraintStart_toEndOf="@+id/label_date_min"
-                app:layout_constraintTop_toBottomOf="@+id/switch_only_follow" />
+                app:layout_constraintTop_toBottomOf="@+id/switch_only_registered" />
 
             <CalendarView
                 android:id="@+id/date_min"
@@ -202,22 +202,22 @@
                 app:layout_constraintTop_toBottomOf="@+id/label_num_results" />
 
             <TextView
-                android:id="@+id/label_only_follow"
+                android:id="@+id/label_only_registered"
                 android:layout_width="190dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="30dp"
                 android:gravity="center"
-                android:text="@string/form_label_only_follow"
+                android:text="@string/form_label_only_registered"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_theme" />
 
             <Switch
-                android:id="@+id/switch_only_follow"
+                android:id="@+id/switch_only_registered"
                 android:layout_width="48dp"
                 android:layout_height="20dp"
                 android:layout_marginStart="230dp"
                 android:layout_marginTop="40dp"
-                app:layout_constraintStart_toEndOf="@+id/label_only_follow"
+                app:layout_constraintStart_toEndOf="@+id/label_only_registered"
                 app:layout_constraintTop_toBottomOf="@+id/list_theme" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

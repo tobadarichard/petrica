@@ -11,11 +11,13 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.lifecycle.Observer;
+import androidx.annotation.NonNull;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
+import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.model.Event;
 import com.example.petrica.views.NonScrollListView;
 
@@ -35,7 +37,7 @@ public class SearchActivity extends BaseContentActivity{
     protected EventAdapter adapterEvent;
     protected NonScrollListView listResult;
     protected TextView labelResult;
-    protected Switch onlyEventsFollowed;
+    protected Switch onlyEventsRegistered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class SearchActivity extends BaseContentActivity{
         buttonSearch = findViewById(R.id.button_search);
         listResult = findViewById(R.id.list_results);
         labelResult = findViewById(R.id.label_num_results);
-        onlyEventsFollowed = findViewById(R.id.switch_only_follow);
+        onlyEventsRegistered = findViewById(R.id.switch_only_registered);
 
 
         // Adding listeners
@@ -100,11 +102,11 @@ public class SearchActivity extends BaseContentActivity{
                 }
             }
         });
-        onlyEventsFollowed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        onlyEventsRegistered.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked && user == null){
-                    onlyEventsFollowed.setChecked(false);
+                    onlyEventsRegistered.setChecked(false);
                     askLogin();
                 }
             }
@@ -118,20 +120,47 @@ public class SearchActivity extends BaseContentActivity{
 
         adapterEvent = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
         listResult.setAdapter(adapterEvent);
+        listResult.setOnItemClickListener(new ItemClickListener());
 
-        model.getListSearchEvents().observe(this, new Observer<List<Event>>() {
-            @Override
-            public void onChanged(List<Event> events) {
-                if (events == null){
-                    labelResult.setText("");
-                }
-                else if (adapterEvent.isEmpty()){
+        if (savedInstanceState != null){
+            model.getServerResponseLiveData().setValue(
+                    new ServerResponse(ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST,model.getSavedSearch(),null,null));
+        }
+    }
+
+    @Override
+    protected void onServerResponse(ServerResponse serverResponse) {
+        List<Event> events = serverResponse.getEventsList();
+        removeLoadingScreen();
+        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE)
+            return;
+        switch (serverResponse.getResponseCode()) {
+            case ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST:
+                isListFinished = false;
+                if (events == null) {
+                    labelResult.setText(R.string.err_retry);
+                } else {
                     int codeString = events.isEmpty() ? R.string.form_no_result : R.string.form_results;
                     labelResult.setText(codeString);
+                    adapterEvent.clear(false);
+                    adapterEvent.addData(events);
                 }
-                adapterEvent.addData(events);
-            }
-        });
+                break;
+            case ServerResponse.RESPONSE_SEARCHED_EVENT_NEXT:
+                if (events == null) {
+                    Toast.makeText(this, R.string.err_retry, Toast.LENGTH_LONG).show();
+                } else {
+                    adapterEvent.addData(events);
+                }
+                break;
+            case ServerResponse.RESPONSE_SEARCHED_EVENT_END:
+                if (events == null) {
+                    Toast.makeText(this, R.string.err_retry, Toast.LENGTH_LONG).show();
+                } else {
+                    isListFinished = true;
+                }
+                break;
+        }
     }
 
     private void searchEvents() {
@@ -145,9 +174,16 @@ public class SearchActivity extends BaseContentActivity{
         String theme = listTheme.getSelectedItem().toString();
         theme = theme.equals("Any") ? null : theme;
         String uid = null;
-        if(onlyEventsFollowed.isChecked() && user != null){
+        if(onlyEventsRegistered.isChecked() && user != null){
             uid = user.getUid();
         }
+        makeLoadingScreen();
         model.searchEvents(min,max,name_org,name,theme,uid);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        model.setSavedSearch(adapterEvent.getData());
     }
 }

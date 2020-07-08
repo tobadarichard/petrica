@@ -10,7 +10,7 @@ public class Rating {
     protected String name_user;
     protected int number;
     public static final int MIN_RATE = 0;
-    public static final int MAX_RATE = 10;
+    public static final int MAX_RATE = 5;
 
     public Rating(String id_user, String name_user, int number) throws RatingException {
         this.id_user = id_user;

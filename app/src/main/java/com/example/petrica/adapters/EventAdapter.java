@@ -42,15 +42,21 @@ public class EventAdapter extends BaseAdapter {
 
     }
     public void addData(List<Event> newData){
-        if (newData == null){
-            data.clear();
-        }
-        else{
+        if (newData != null){
             data.addAll(newData);
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
+    }
 
+    public List<Event> getData(){
+        return data;
+    }
 
+    public void clear(boolean mustNotify) {
+        data.clear();
+        if (mustNotify){
+            notifyDataSetChanged();
+        }
     }
 
     @Override

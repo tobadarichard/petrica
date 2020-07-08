@@ -2,17 +2,15 @@ package com.example.petrica.activities;
 
 import android.os.Bundle;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
+import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.model.Event;
 import com.example.petrica.views.NonScrollListView;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,10 +21,10 @@ import java.util.List;
 public class MainActivity extends BaseContentActivity {
     // This is the main page of the app
     protected EventAdapter adapterComing;
-    protected EventAdapter adapterFollowed;
+    protected EventAdapter adapterRegistered;
     protected TextView hello;
     protected boolean hasEmptyMessageComing = false;
-    protected boolean hasEmptyMessageFollowed = false;
+    protected boolean hasEmptyMessageRegistered = false;
     protected LinearLayout linear;
     public static final int EMPTY_POSITION_COMING = 5;
     public static final int EMPTY_POSITION_FOLLOWED = 3;
@@ -34,7 +32,6 @@ public class MainActivity extends BaseContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupHeader(R.layout.activity_main);
-
         // Getting view
         hello = findViewById(R.id.hello_label);
         linear = findViewById(R.id.linear);
@@ -43,9 +40,37 @@ public class MainActivity extends BaseContentActivity {
         adapterComing = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
         NonScrollListView lw1 = findViewById(R.id.coming_events);
         lw1.setAdapter(adapterComing);
-        model.getListComingEvents().observe(this, new Observer<List<Event>>() {
+        lw1.setOnItemClickListener(new ItemClickListener());
+        // Setting observer for adapter and registered events
+        adapterRegistered = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
+        NonScrollListView lw2 = findViewById(R.id.registered_events);
+        lw2.setAdapter(adapterRegistered);
+        lw2.setOnItemClickListener(new ItemClickListener());
+
+        // Showing welcome message if user is logged
+        model.getUser().observe(this, new Observer<FirebaseUser>() {
             @Override
-            public void onChanged(List<Event> events) {
+            public void onChanged(FirebaseUser firebaseUser) {
+                if (firebaseUser != null){
+                    hello.setText(getResources().getString(R.string.hello_label,firebaseUser.getDisplayName()));
+                    hello.setVisibility(View.VISIBLE);
+                    // Activate registered events
+                    model.loadRegisteredEvents(firebaseUser);
+                }
+                else{
+                    hello.setVisibility(View.INVISIBLE);
+                    addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_registered_events));
+                }
+            }
+        });
+        model.loadComingEvents();
+    }
+
+    @Override
+    protected void onServerResponse(ServerResponse serverResponse) {
+        List<Event> events = serverResponse.getEventsList();
+        switch (serverResponse.getResponseCode()){
+            case ServerResponse.RESPONSE_COMING_EVENT:
                 adapterComing.addData(events);
                 if (events != null && !events.isEmpty()){
                     // remove the empty message
@@ -55,45 +80,20 @@ public class MainActivity extends BaseContentActivity {
                     // Add the empty message
                     addEmptyMessage(EMPTY_POSITION_COMING);
                 }
-            }
-        });
-        // Setting observer for adapter and followed events
-        adapterFollowed = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
-        NonScrollListView lw2 = findViewById(R.id.follow_events);
-        lw2.setAdapter(adapterFollowed);
-        model.getListFollowedEvents().observe(this, new Observer<List<Event>>() {
-            @Override
-            public void onChanged(List<Event> events) {
-                adapterFollowed.addData(events);
+                break;
+            case ServerResponse.RESPONSE_REGISTERED_EVENT:
+                adapterRegistered.addData(events);
                 if (events != null && !events.isEmpty()){
                     // remove the empty message
                     removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
 
                 }
-                else if (adapterFollowed.isEmpty()){
+                else if (adapterRegistered.isEmpty()){
                     // Add the empty message
                     addEmptyMessage(EMPTY_POSITION_FOLLOWED);
                 }
-            }
-        });
-
-        // Showing welcome message if user is logged
-        model.getUser().observe(this, new Observer<FirebaseUser>() {
-            @Override
-            public void onChanged(FirebaseUser firebaseUser) {
-                if (firebaseUser != null){
-                    hello.setText(getResources().getString(R.string.hello_label,firebaseUser.getDisplayName()));
-                    hello.setVisibility(View.VISIBLE);
-                    // Activate followed events
-                    model.loadFollowedEvents(firebaseUser);
-                }
-                else{
-                    hello.setVisibility(View.INVISIBLE);
-                    addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_follow_events));
-                }
-            }
-        });
-        model.loadComingEvents();
+                break;
+        }
     }
 
     private void removeEmptyMessage(int emptyPosition) {
@@ -105,10 +105,10 @@ public class MainActivity extends BaseContentActivity {
                 hasEmptyMessageComing = false;
                 break;
             case EMPTY_POSITION_FOLLOWED:
-                if (!hasEmptyMessageFollowed){
+                if (!hasEmptyMessageRegistered){
                     return;
                 }
-                hasEmptyMessageFollowed = false;
+                hasEmptyMessageRegistered = false;
                 break;
         }
         linear.removeViewAt(emptyPosition);
@@ -127,10 +127,10 @@ public class MainActivity extends BaseContentActivity {
                 hasEmptyMessageComing = true;
                 break;
             case EMPTY_POSITION_FOLLOWED:
-                if (hasEmptyMessageFollowed){
+                if (hasEmptyMessageRegistered){
                     return;
                 }
-                hasEmptyMessageFollowed = true;
+                hasEmptyMessageRegistered = true;
                 break;
         }
         TextView tv = new TextView(this);

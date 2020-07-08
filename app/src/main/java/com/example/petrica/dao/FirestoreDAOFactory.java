@@ -22,7 +22,11 @@ public class FirestoreDAOFactory {
     }
 
 
-    public FirestoreDAOEvent getDAOEvent(MutableLiveData<List<Event>> listComingEvents, MutableLiveData<List<Event>> listFollowedEvents, MutableLiveData<List<Event>> listSearchEvents) {
-        return new FirestoreDAOEvent(db,listComingEvents,listFollowedEvents,listSearchEvents);
+    public FirestoreDAOEvent getDAOEvent(MutableLiveData<ServerResponse> serverResponse) {
+        return new FirestoreDAOEvent(db,serverResponse);
+    }
+
+    public FirestoreDAORating getDAORating(MutableLiveData<ServerResponse> serverResponse){
+        return new FirestoreDAORating(db,serverResponse);
     }
 }
