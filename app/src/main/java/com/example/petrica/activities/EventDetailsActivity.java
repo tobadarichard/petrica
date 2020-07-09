@@ -1,5 +1,10 @@
 package com.example.petrica.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.example.petrica.R;
@@ -17,6 +23,7 @@ import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.exceptions.RatingException;
 import com.example.petrica.model.Event;
 import com.example.petrica.model.Rating;
+import com.example.petrica.receivers.EventReceiver;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.text.DateFormat;
@@ -61,11 +68,13 @@ public class EventDetailsActivity extends BaseContentActivity {
                         .setMessage(R.string.detail_err_rate).create().show();
             }
             else if (which == (rate-1)){
+                makeLoadingScreen();
                 model.unwriteRating(user.getUid(),event.getId_event());
             }
             else{
                 try {
                     Rating rating = new Rating(user.getUid(),user.getDisplayName(),(which+1));
+                    makeLoadingScreen();
                     model.writeRating(rating,event.getId_event());
                 } catch (RatingException ignored) {}
             }
@@ -77,7 +86,12 @@ public class EventDetailsActivity extends BaseContentActivity {
         super.onCreate(savedInstanceState);
         setupHeader(R.layout.activity_event_detail);
         // Getting the event to show
-        if (savedInstanceState != null){
+        boolean eventToDownload = getIntent().getBooleanExtra("MUST_RETRIEVE",false);
+        if (eventToDownload){
+            String id_event = getIntent().getStringExtra("ID_EVENT");
+            model.loadEvent(id_event);
+        }
+        else if (savedInstanceState != null){
             event = savedInstanceState.getParcelable(EXTRA_EVENT_TOSHOW);
             isRegister = savedInstanceState.getBoolean("isRegistered");
             rate = savedInstanceState.getInt("rate");
@@ -127,6 +141,7 @@ public class EventDetailsActivity extends BaseContentActivity {
                     askLogin();
                 }
                 else {
+                    makeLoadingScreen();
                     if (isRegister){
                         model.unwriteRegister(user.getUid(),event.getId_event());
                     }
@@ -136,16 +151,48 @@ public class EventDetailsActivity extends BaseContentActivity {
                 }
             }
         });
-        showEvent(savedInstanceState == null);
+        if (!eventToDownload){
+            showEvent(savedInstanceState == null);
+        }
     }
 
     @Override
     protected void onServerResponse(ServerResponse serverResponse) {
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE)
+        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
+            removeLoadingScreen();
             return;
-        removeLoadingScreen();
+        }
         int oldRating = rate;
+        AlarmManager alarmManager;
+        PendingIntent pendingIntent;
         switch (serverResponse.getResponseCode()){
+            case ServerResponse.RESPONSE_DETAIL_EVENT_OK:
+                List<Event> listE = serverResponse.getEventsList();
+                if (listE.isEmpty()){
+                    AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                    adb.setTitle(R.string.err).setMessage(R.string.err_404_details)
+                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialog) {
+                                    finish();
+                                }
+                            }).create().show();
+                }
+                else{
+                    event = listE.get(0);
+                    showEvent(true);
+                }
+                break;
+            case ServerResponse.RESPONSE_DETAIL_EVENT_ERROR:
+                AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                adb.setTitle(R.string.err).setMessage(R.string.err_retry)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                finish();
+                            }
+                        }).create().show();
+                break;
             case ServerResponse.RESPONSE_INFO_USER_EVENT_OK:
                 List<Rating> infoRating = serverResponse.getRatingList();
                 if (infoRating.isEmpty()){
@@ -174,6 +221,16 @@ public class EventDetailsActivity extends BaseContentActivity {
                 Toast.makeText(this,R.string.detail_register_successful,Toast.LENGTH_SHORT).show();
                 event.setNum_reg(event.getNum_reg()+1);
                 isRegister = true;
+                // Add alarm
+                Intent i = new Intent(this,EventReceiver.class);
+                i.setAction(EventReceiver.EVENT_NEAR);
+                i.putExtra("ID_EVENT",event.getId_event());
+                i.putExtra("NAME",event.getName());
+                i.putExtra("DATE",event.getDate().getTime());
+                alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                pendingIntent = PendingIntent.getBroadcast(this, 0, i,0);
+                alarmManager.set(AlarmManager.RTC, event.getDate().getTime() -(1000*60*60),
+                        pendingIntent);
                 refreshRegistered();
                 break;
             case ServerResponse.RESPONSE_DELETE_RATING_OK:
@@ -185,7 +242,18 @@ public class EventDetailsActivity extends BaseContentActivity {
             case ServerResponse.RESPONSE_UNREGISTER_OK:
                 Toast.makeText(this,R.string.detail_unregister_successful,Toast.LENGTH_SHORT).show();
                 event.setNum_reg(event.getNum_reg()-1);
+                // Remove alarm
                 isRegister = false;
+                alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                Intent ii = new Intent(this,EventReceiver.class);
+                ii.setAction(EventReceiver.EVENT_NEAR);
+                ii.putExtra("ID_EVENT",event.getId_event());
+                ii.putExtra("NAME",event.getName());
+                ii.putExtra("DATE",event.getDate().getTime());
+                pendingIntent = PendingIntent.getBroadcast(this, 0, ii, 0);
+                if (pendingIntent != null && alarmManager != null) {
+                    alarmManager.cancel(pendingIntent);
+                }
                 refreshRegistered();
                 break;
             case ServerResponse.RESPONSE_WRITING_RATING_ERROR:
@@ -195,6 +263,7 @@ public class EventDetailsActivity extends BaseContentActivity {
                 Toast.makeText(this,R.string.err_retry,Toast.LENGTH_SHORT).show();
                 break;
         }
+        removeLoadingScreen();
     }
 
     public void showEvent(boolean mustRefresh){

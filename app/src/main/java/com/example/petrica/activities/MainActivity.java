@@ -68,6 +68,10 @@ public class MainActivity extends BaseContentActivity {
 
     @Override
     protected void onServerResponse(ServerResponse serverResponse) {
+        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
+            removeLoadingScreen();
+            return;
+        }
         List<Event> events = serverResponse.getEventsList();
         switch (serverResponse.getResponseCode()){
             case ServerResponse.RESPONSE_COMING_EVENT:
@@ -94,6 +98,7 @@ public class MainActivity extends BaseContentActivity {
                 }
                 break;
         }
+        removeLoadingScreen();
     }
 
     private void removeEmptyMessage(int emptyPosition) {

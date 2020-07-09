@@ -49,4 +49,10 @@
     <string name="detail_register_successful">You have registered to this event !</string>
     <string name="detail_unrate_successful">Your rating has been removed</string>
     <string name="detail_unregister_successful">You have unregistered to this event</string>
+    <string name="notif_event_coming_title">An event is coming !</string>
+    <string name="notif_event_coming_body">The event %1$s is about to start !</string>
+    <string name="notif_event_finished_title">An event is finished !</string>
+    <string name="notif_event_finished_body">The event %1$s just finished !</string>
+    <string name="notif_event_more_info">More information</string>
+    <string name="channel_name">Event info</string>
 </resources>

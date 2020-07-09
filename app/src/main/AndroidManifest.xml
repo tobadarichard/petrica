@@ -13,7 +13,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.EventDetailsActivity" />
+        <receiver android:name=".receivers.EventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.petrica.action.EVENT_NEAR"/>
+                <action android:name="com.example.petrica.action.EVENT_FINISHED"/>
+            </intent-filter>
+        </receiver>
+        <activity android:name="com.example.petrica.activities.EventDetailsActivity" />
         <activity android:name=".activities.SearchActivity" />
         <activity android:name=".activities.MainActivity" />
         <activity android:name=".activities.FirstActivity">

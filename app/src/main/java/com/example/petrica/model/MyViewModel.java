@@ -91,4 +91,8 @@ public class MyViewModel extends ViewModel{
     public void setSavedSearch(List<Event> savedSearch) {
         this.savedSearch = savedSearch;
     }
+
+    public void loadEvent(String id_event){
+        DAOEvent.getEvent(id_event);
+    }
 }

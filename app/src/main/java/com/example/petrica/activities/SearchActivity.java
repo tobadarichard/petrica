@@ -131,9 +131,10 @@ public class SearchActivity extends BaseContentActivity{
     @Override
     protected void onServerResponse(ServerResponse serverResponse) {
         List<Event> events = serverResponse.getEventsList();
-        removeLoadingScreen();
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE)
+        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
+            removeLoadingScreen();
             return;
+        }
         switch (serverResponse.getResponseCode()) {
             case ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST:
                 isListFinished = false;
@@ -161,6 +162,7 @@ public class SearchActivity extends BaseContentActivity{
                 }
                 break;
         }
+        removeLoadingScreen();
     }
 
     private void searchEvents() {

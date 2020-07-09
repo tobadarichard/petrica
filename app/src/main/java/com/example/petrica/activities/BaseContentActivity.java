@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.petrica.R;
@@ -86,6 +84,8 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
             ProgressBar pb = new ProgressBar(this);
             pb.setIndeterminate(true);
             loadingScreen = (new AlertDialog.Builder(this)).setView(pb).create();
+            loadingScreen.setCanceledOnTouchOutside(false);
+            loadingScreen.setCancelable(false);
             loadingScreen.show();
         }
     }
@@ -93,6 +93,7 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
     protected void removeLoadingScreen(){
         if (hasLoadingScreen){
             hasLoadingScreen = false;
+            loadingScreen.setCancelable(true);
             loadingScreen.cancel();
         }
     }

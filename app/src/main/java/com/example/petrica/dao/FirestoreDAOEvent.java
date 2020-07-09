@@ -1,7 +1,5 @@
 package com.example.petrica.dao;
 
-import android.widget.ListView;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
@@ -225,5 +223,10 @@ public class FirestoreDAOEvent {
                         }
                     }
                 });
+    }
+
+    public void getEvent(String id_event) {
+        db.collection("events").whereEqualTo("id_event",id_event).get().addOnCompleteListener(
+                new FilteredEventsResultListener(null,ServerResponse.RESPONSE_DETAIL_EVENT_OK,ServerResponse.RESPONSE_DETAIL_EVENT_ERROR));
     }
 }

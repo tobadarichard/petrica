@@ -25,7 +25,8 @@ public class ServerResponse {
     public static final int RESPONSE_WRITING_RATING_ERROR = 9;
     public static final int RESPONSE_WRITING_EVENT_OK = 10;
     public static final int RESPONSE_WRITING_EVENT_ERROR = 11;
-    public static final int RESPONSE_DETAIL_EVENT = 12;
+    public static final int RESPONSE_DETAIL_EVENT_OK = 12;
+    public static final int RESPONSE_DETAIL_EVENT_ERROR = 21;
     public static final int RESPONSE_REGISTER_OK = 13;
     public static final int RESPONSE_REGISTER_ERROR = 14;
     public static final int RESPONSE_INFO_USER_EVENT_OK = 15;
@@ -34,6 +35,7 @@ public class ServerResponse {
     public static final int RESPONSE_UNREGISTER_ERROR = 18;
     public static final int RESPONSE_DELETE_RATING_ERROR = 19;
     public static final int RESPONSE_DELETE_RATING_OK = 20;
+
 
     public ServerResponse(int responseCode, List<Event> eventsList, List<Rating> ratingList, List<Review> reviewsList) {
         this.responseCode = responseCode;
