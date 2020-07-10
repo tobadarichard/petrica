@@ -20,6 +20,7 @@
                 <action android:name="com.example.petrica.action.EVENT_FINISHED"/>
             </intent-filter>
         </receiver>
+        <activity android:name=".activities.CommentsActivity"/>
         <activity android:name="com.example.petrica.activities.EventDetailsActivity" />
         <activity android:name=".activities.SearchActivity" />
         <activity android:name=".activities.MainActivity" />

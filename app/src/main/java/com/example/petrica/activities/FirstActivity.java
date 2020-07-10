@@ -1,9 +1,6 @@
 package com.example.petrica.activities;
 
-import androidx.annotation.NonNull;
-
 import android.Manifest;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -15,6 +12,8 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.example.petrica.R;
 

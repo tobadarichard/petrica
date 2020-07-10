@@ -8,6 +8,7 @@ import com.example.petrica.model.Event;
 import com.example.petrica.model.Rating;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,7 +30,7 @@ public class FirestoreDAOEvent {
     protected Query lastQuery;
     protected String lastName;
 
-    private class FilteredEventsResultListener implements OnCompleteListener<QuerySnapshot>{
+    public class FilteredEventsResultListener implements OnCompleteListener<QuerySnapshot>{
         private int responseCodeOk;
         private int responseCodeError;
         private String name;

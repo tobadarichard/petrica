@@ -2,8 +2,6 @@ package com.example.petrica.model;
 
 import com.example.petrica.exceptions.RatingException;
 
-import java.util.Date;
-
 public class Rating {
     // Class representing a rating
     protected String id_user;

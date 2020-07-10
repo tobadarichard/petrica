@@ -2,7 +2,7 @@ package com.example.petrica.dao;
 
 import com.example.petrica.model.Event;
 import com.example.petrica.model.Rating;
-import com.example.petrica.model.Review;
+import com.example.petrica.model.Comment;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public class ServerResponse {
     protected int responseCode;
     protected List<Event> eventsList;
     protected List<Rating> ratingList;
-    protected List<Review> reviewsList;
+    protected List<Comment> reviewsList;
 
     public static final int RESPONSE_TO_IGNORE = -1;
     public static final int RESPONSE_COMING_EVENT = 0;
@@ -18,9 +18,9 @@ public class ServerResponse {
     public static final int RESPONSE_SEARCHED_EVENT_FIRST = 2;
     public static final int RESPONSE_SEARCHED_EVENT_NEXT = 3;
     public static final int RESPONSE_SEARCHED_EVENT_END = 4;
-    public static final int RESPONSE_REVIEWS_EVENT = 5;
-    public static final int RESPONSE_WRITING_REVIEW_OK = 6;
-    public static final int RESPONSE_WRITING_REVIEW_ERROR = 7;
+    public static final int RESPONSE_COMMENT_EVENT_OK = 5;
+    public static final int RESPONSE_WRITING_COMMENT_OK = 6;
+    public static final int RESPONSE_WRITING_COMMENT_ERROR = 7;
     public static final int RESPONSE_WRITING_RATING_OK = 8;
     public static final int RESPONSE_WRITING_RATING_ERROR = 9;
     public static final int RESPONSE_WRITING_EVENT_OK = 10;
@@ -35,9 +35,16 @@ public class ServerResponse {
     public static final int RESPONSE_UNREGISTER_ERROR = 18;
     public static final int RESPONSE_DELETE_RATING_ERROR = 19;
     public static final int RESPONSE_DELETE_RATING_OK = 20;
+    public static final int RESPONSE_DELETE_COMMENT_OK = 21;
+    public static final int RESPONSE_DELETE_COMMENT_ERROR = 22;
+    public static final int RESPONSE_COMMENT_EVENT_ERROR = 23;
+    public static final int RESPONSE_DELETE_EVENT_OK = 24;
+    public static final int RESPONSE_DELETE_EVENT_ERROR = 25;
+    public static final int RESPONSE_COMMENT_EVENT_NEXT_OK = 26;
+    public static final int RESPONSE_COMMENT_EVENT_NEXT_ERROR = 27;
 
 
-    public ServerResponse(int responseCode, List<Event> eventsList, List<Rating> ratingList, List<Review> reviewsList) {
+    public ServerResponse(int responseCode, List<Event> eventsList, List<Rating> ratingList, List<Comment> reviewsList) {
         this.responseCode = responseCode;
         this.eventsList = eventsList;
         this.ratingList = ratingList;
@@ -68,11 +75,11 @@ public class ServerResponse {
         this.ratingList = ratingList;
     }
 
-    public List<Review> getReviewsList() {
+    public List<Comment> getReviewsList() {
         return reviewsList;
     }
 
-    public void setReviewsList(List<Review> reviewsList) {
+    public void setReviewsList(List<Comment> reviewsList) {
         this.reviewsList = reviewsList;
     }
 }

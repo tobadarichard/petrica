@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -19,9 +20,9 @@ import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
 import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.model.Event;
-import com.example.petrica.views.NonScrollListView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -30,14 +31,16 @@ public class SearchActivity extends BaseContentActivity{
     protected EditText inputNameOrga;
     protected Spinner listTheme;
     protected Switch hasDateMin;
-    protected CalendarView dateMin;
+    protected CalendarView calendarDateMin;
     protected Switch hasDateMax;
-    protected CalendarView dateMax;
+    protected CalendarView calendarDateMax;
     protected Button buttonSearch;
     protected EventAdapter adapterEvent;
-    protected NonScrollListView listResult;
+    protected ListView listResult;
     protected TextView labelResult;
     protected Switch onlyEventsRegistered;
+    protected Date dateMin;
+    protected Date dateMax;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +51,9 @@ public class SearchActivity extends BaseContentActivity{
         inputNameOrga = findViewById(R.id.input_orga_name);
         listTheme = findViewById(R.id.list_theme);
         hasDateMin = findViewById(R.id.switch_date_min);
-        dateMin = findViewById(R.id.date_min);
+        calendarDateMin = findViewById(R.id.date_min);
         hasDateMax = findViewById(R.id.switch_date_max);
-        dateMax = findViewById(R.id.date_max);
+        calendarDateMax = findViewById(R.id.date_max);
         search = findViewById(R.id.search_view);
         buttonSearch = findViewById(R.id.button_search);
         listResult = findViewById(R.id.list_results);
@@ -79,14 +82,16 @@ public class SearchActivity extends BaseContentActivity{
             }
         });
         // TODO : ANIMATION ?
+        dateMin = new Date();
+        dateMax = new Date();
         hasDateMin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    dateMin.setVisibility(View.VISIBLE);
+                    calendarDateMin.setVisibility(View.VISIBLE);
                 }
                 else{
-                    dateMin.setVisibility(View.GONE);
+                    calendarDateMin.setVisibility(View.GONE);
                 }
             }
         });
@@ -95,10 +100,10 @@ public class SearchActivity extends BaseContentActivity{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    dateMax.setVisibility(View.VISIBLE);
+                    calendarDateMax.setVisibility(View.VISIBLE);
                 }
                 else{
-                    dateMax.setVisibility(View.GONE);
+                    calendarDateMax.setVisibility(View.GONE);
                 }
             }
         });
@@ -109,6 +114,26 @@ public class SearchActivity extends BaseContentActivity{
                     onlyEventsRegistered.setChecked(false);
                     askLogin();
                 }
+            }
+        });
+
+        calendarDateMin.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                Calendar c = Calendar.getInstance();
+                c.clear();
+                c.set(year,month,dayOfMonth);
+                dateMin = c.getTime();
+            }
+        });
+
+        calendarDateMax.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                Calendar c = Calendar.getInstance();
+                c.clear();
+                c.set(year,month,dayOfMonth);
+                dateMax = c.getTime();
             }
         });
 
@@ -167,8 +192,8 @@ public class SearchActivity extends BaseContentActivity{
 
     private void searchEvents() {
         // Retrieving parameters
-        Date min = hasDateMin.isChecked() ? new Date(dateMin.getDate()) : null;
-        Date max = hasDateMax.isChecked() ? new Date(dateMax.getDate()) : null;
+        Date min = hasDateMin.isChecked() ? dateMin : null;
+        Date max = hasDateMax.isChecked() ? dateMax : null;
         String name_org = inputNameOrga.getText().toString();
         name_org = name_org.equals("") ? null : name_org;
         String name = search.getQuery().toString();

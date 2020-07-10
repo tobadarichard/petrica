@@ -3,8 +3,6 @@ package com.example.petrica.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.util.Date;
 
 public class Event implements Parcelable {

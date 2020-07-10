@@ -4,7 +4,6 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,7 +23,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import java.text.DateFormat;
 import java.util.List;
 
-public class EventAdapter extends BaseAdapter {
+public class EventAdapter extends MainAdapter<Event>{
+
+    public EventAdapter(List<Event> data, LayoutInflater li) {
+        super(data, li);
+    }
 
     static class ViewHolder{
         public ImageView image;
@@ -32,46 +35,6 @@ public class EventAdapter extends BaseAdapter {
         public TextView theme;
         public TextView date;
         public ProgressBar progress;
-    }
-
-    protected List<Event> data;
-    protected LayoutInflater li;
-    public EventAdapter(List<Event> data, LayoutInflater li){
-        this.data = data;
-        this.li = li;
-
-    }
-    public void addData(List<Event> newData){
-        if (newData != null){
-            data.addAll(newData);
-            notifyDataSetChanged();
-        }
-    }
-
-    public List<Event> getData(){
-        return data;
-    }
-
-    public void clear(boolean mustNotify) {
-        data.clear();
-        if (mustNotify){
-            notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public int getCount() {
-        return data.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return data.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
     }
 
     @Override

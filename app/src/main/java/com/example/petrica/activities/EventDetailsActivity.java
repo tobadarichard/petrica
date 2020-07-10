@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.example.petrica.R;
@@ -130,7 +129,10 @@ public class EventDetailsActivity extends BaseContentActivity {
         button_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO : start comment activity
+                Intent intent = new Intent(EventDetailsActivity.this,CommentsActivity.class);
+                intent.putExtra("ID_EVENT",event.getId_event());
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
             }
         });
 

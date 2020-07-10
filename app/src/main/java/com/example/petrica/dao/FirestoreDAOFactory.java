@@ -2,10 +2,7 @@ package com.example.petrica.dao;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.petrica.model.Event;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.List;
 
 public class FirestoreDAOFactory {
     protected FirebaseFirestore db;
@@ -28,5 +25,9 @@ public class FirestoreDAOFactory {
 
     public FirestoreDAORating getDAORating(MutableLiveData<ServerResponse> serverResponse){
         return new FirestoreDAORating(db,serverResponse);
+    }
+
+    public FirestoreDAOComment getDAOComment(MutableLiveData<ServerResponse> serverResponse) {
+        return new FirestoreDAOComment(db,serverResponse);
     }
 }
