@@ -17,7 +17,6 @@ public class FirestoreDAORating {
     protected MutableLiveData<ServerResponse> serverResponse;
     protected FirebaseFirestore db;
 
-
     public FirestoreDAORating(FirebaseFirestore db, MutableLiveData<ServerResponse> serverResponse){
         this.db = db;
         this.serverResponse = serverResponse;

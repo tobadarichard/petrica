@@ -1,5 +1,6 @@
 package com.example.petrica.model;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -24,11 +25,27 @@ public class MyViewModel extends ViewModel{
     private FirestoreDAORating DAORating;
     private FirestoreDAOComment DAOComment;
     private List<Event> savedSearch;
+    private List<Event> savedRegistered;
+    private List<Event> savedComing;
+    private List<Comment> savedComment;
+    private FirebaseAuth.AuthStateListener listener;
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        firebaseAuthInstance.removeAuthStateListener(listener);
+    }
 
     public void init(){
         if (firebaseAuthInstance == null){
             firebaseAuthInstance = FirebaseAuth.getInstance();
-            user.setValue(firebaseAuthInstance.getCurrentUser());
+            listener = new FirebaseAuth.AuthStateListener() {
+                @Override
+                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    user.setValue(firebaseAuth.getCurrentUser());
+                }
+            };
+            firebaseAuthInstance.addAuthStateListener(listener);
         }
         DAOEvent = FirestoreDAOFactory.getFactory().getDAOEvent(serverResponseLiveData);
         DAORating = FirestoreDAOFactory.getFactory().getDAORating(serverResponseLiveData);
@@ -40,7 +57,6 @@ public class MyViewModel extends ViewModel{
     }
 
     public MutableLiveData<FirebaseUser> getUser() {
-        user.setValue(firebaseAuthInstance.getCurrentUser());
         return user;
     }
 
@@ -52,10 +68,8 @@ public class MyViewModel extends ViewModel{
         DAOEvent.getComingEvents(5);
     }
 
-    public void loadRegisteredEvents(FirebaseUser u) {
-        if (u != null){
-            DAOEvent.getRegisteredEvents(5,u.getUid());
-        }
+    public void loadRegisteredEvents(String uid) {
+        DAOEvent.getRegisteredEvents(5,uid);
     }
 
     public MutableLiveData<ServerResponse> getServerResponseLiveData() {
@@ -113,5 +127,29 @@ public class MyViewModel extends ViewModel{
 
     public void loadEvent(String id_event){
         DAOEvent.getEvent(id_event);
+    }
+
+    public List<Event> getSavedRegistered() {
+        return savedRegistered;
+    }
+
+    public void setSavedRegistered(List<Event> savedRegistered) {
+        this.savedRegistered = savedRegistered;
+    }
+
+    public List<Event> getSavedComing() {
+        return savedComing;
+    }
+
+    public void setSavedComing(List<Event> savedComing) {
+        this.savedComing = savedComing;
+    }
+
+    public List<Comment> getSavedComment() {
+        return savedComment;
+    }
+
+    public void setSavedComment(List<Comment> savedComment) {
+        this.savedComment = savedComment;
     }
 }

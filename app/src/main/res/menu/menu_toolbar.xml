@@ -17,4 +17,9 @@
         android:icon="@drawable/baseline_settings_black_48"
         android:title="@string/toolbar_settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/toolbar_add"
+        android:icon="@drawable/baseline_add_black_48"
+        android:title="@string/toolbar_add"
+        app:showAsAction="ifRoom" />
 </menu>

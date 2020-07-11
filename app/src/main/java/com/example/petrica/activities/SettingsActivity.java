@@ -3,6 +3,7 @@ package com.example.petrica.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -86,8 +87,27 @@ public class SettingsActivity extends BaseContentActivity{
     }
 
     @Override
-    protected void onServerResponse(ServerResponse serverResponse) {
-        removeLoadingScreen();
+    public void onServerResponse(ServerResponse serverResponse) {
+        // Nothing to do
+    }
 
+    @Override
+    public void onUserDisconnect() {
+        // Leave
+        Toast.makeText(this,R.string.sign_out_successful,Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this,MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onUserConnect() {
+        // Nothing to do
+    }
+
+    @Override
+    public void onRefresh() {
+        // Nothing to do
     }
 }

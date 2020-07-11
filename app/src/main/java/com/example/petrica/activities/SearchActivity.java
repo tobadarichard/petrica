@@ -81,9 +81,8 @@ public class SearchActivity extends BaseContentActivity{
                 searchEvents();
             }
         });
-        // TODO : ANIMATION ?
+
         dateMin = new Date();
-        dateMax = new Date();
         hasDateMin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -95,7 +94,17 @@ public class SearchActivity extends BaseContentActivity{
                 }
             }
         });
+        calendarDateMin.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                Calendar c = Calendar.getInstance();
+                c.clear();
+                c.set(year,month,dayOfMonth);
+                dateMin = c.getTime();
+            }
+        });
 
+        dateMax = new Date();
         hasDateMax.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -107,26 +116,6 @@ public class SearchActivity extends BaseContentActivity{
                 }
             }
         });
-        onlyEventsRegistered.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && user == null){
-                    onlyEventsRegistered.setChecked(false);
-                    askLogin();
-                }
-            }
-        });
-
-        calendarDateMin.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                Calendar c = Calendar.getInstance();
-                c.clear();
-                c.set(year,month,dayOfMonth);
-                dateMin = c.getTime();
-            }
-        });
-
         calendarDateMax.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -134,6 +123,16 @@ public class SearchActivity extends BaseContentActivity{
                 c.clear();
                 c.set(year,month,dayOfMonth);
                 dateMax = c.getTime();
+            }
+        });
+
+        onlyEventsRegistered.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked && user == null){
+                    onlyEventsRegistered.setChecked(false);
+                    askLogin();
+                }
             }
         });
 
@@ -145,7 +144,7 @@ public class SearchActivity extends BaseContentActivity{
 
         adapterEvent = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
         listResult.setAdapter(adapterEvent);
-        listResult.setOnItemClickListener(new ItemClickListener());
+        listResult.setOnItemClickListener(new ItemClickEventListener());
 
         if (savedInstanceState != null){
             model.getServerResponseLiveData().setValue(
@@ -154,12 +153,8 @@ public class SearchActivity extends BaseContentActivity{
     }
 
     @Override
-    protected void onServerResponse(ServerResponse serverResponse) {
+    public void onServerResponse(ServerResponse serverResponse) {
         List<Event> events = serverResponse.getEventsList();
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
-            removeLoadingScreen();
-            return;
-        }
         switch (serverResponse.getResponseCode()) {
             case ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST:
                 isListFinished = false;
@@ -187,7 +182,21 @@ public class SearchActivity extends BaseContentActivity{
                 }
                 break;
         }
-        removeLoadingScreen();
+    }
+
+    @Override
+    public void onRefresh() {
+        searchEvents();
+    }
+
+    @Override
+    public void onUserDisconnect() {
+        onlyEventsRegistered.setChecked(false);
+    }
+
+    @Override
+    public void onUserConnect() {
+        // Nothing to do
     }
 
     private void searchEvents() {

@@ -12,6 +12,8 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.petrica.R;
 import com.example.petrica.adapters.CommentAdapter;
 import com.example.petrica.dao.ServerResponse;
@@ -28,18 +30,15 @@ public class CommentsActivity extends BaseContentActivity {
     protected Button button_send;
     protected CommentAdapter commentAdapter;
     protected String id_event;
-    protected boolean hasMore;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupHeader(R.layout.activity_comments);
-        id_event = getIntent().getStringExtra("ID_EVENT");
+        id_event = getIntent().getStringExtra(EXTRA_ID_EVENT);
         if (id_event == null){
             finish();
         }
-        hasMore = true;
         // Finding views
         button_add = findViewById(R.id.comment_add);
         switch_manage = findViewById(R.id.comment_manage);
@@ -124,16 +123,17 @@ public class CommentsActivity extends BaseContentActivity {
                 }
             }
         });
-
-        model.loadComments(id_event);
+        if (savedInstanceState == null){
+            model.loadComments(id_event);
+        }
+        else{
+            isListFinished = savedInstanceState.getBoolean(EXTRA_IS_LIST_FINISHED,false);
+            commentAdapter.addData(model.getSavedComment());
+        }
     }
 
     @Override
-    protected void onServerResponse(ServerResponse serverResponse) {
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
-            removeLoadingScreen();
-            return;
-        }
+    public void onServerResponse(ServerResponse serverResponse) {
         switch (serverResponse.getResponseCode()){
             case ServerResponse.RESPONSE_WRITING_COMMENT_OK:
                 Toast.makeText(this,R.string.comment_write_successful,Toast.LENGTH_SHORT).show();
@@ -142,7 +142,7 @@ public class CommentsActivity extends BaseContentActivity {
                 break;
             case ServerResponse.RESPONSE_COMMENT_EVENT_OK:
                 commentAdapter.addData(serverResponse.getReviewsList());
-                hasMore = true;
+                isListFinished = false;
                 break;
             case ServerResponse.RESPONSE_DELETE_COMMENT_OK:
                 Toast.makeText(this,R.string.comment_delete_successful,Toast.LENGTH_SHORT).show();
@@ -152,7 +152,7 @@ public class CommentsActivity extends BaseContentActivity {
             case ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_OK:
                 commentAdapter.addData(serverResponse.getReviewsList());
                 if (serverResponse.getReviewsList().isEmpty()){
-                    hasMore = false;
+                    isListFinished = true;
                 }
                 break;
             case ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_ERROR:
@@ -162,6 +162,30 @@ public class CommentsActivity extends BaseContentActivity {
                 Toast.makeText(this,R.string.err_retry,Toast.LENGTH_SHORT).show();
                 break;
         }
-        removeLoadingScreen();
+    }
+
+    @Override
+    public void onRefresh() {
+        commentAdapter.clear(true);
+        makeLoadingScreen();
+        model.loadComments(id_event);
+    }
+
+    @Override
+    public void onUserDisconnect() {
+        edit_comment.setVisibility(View.GONE);
+        button_send.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onUserConnect() {
+        // Nothing to do
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_IS_LIST_FINISHED,isListFinished);
+        model.setSavedComment(commentAdapter.getData());
     }
 }

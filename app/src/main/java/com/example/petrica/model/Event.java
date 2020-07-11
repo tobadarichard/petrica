@@ -59,8 +59,6 @@ public class Event implements Parcelable {
         avg_rate = in.readDouble();
     }
 
-
-
     public Date getDate() {
         return date;
     }

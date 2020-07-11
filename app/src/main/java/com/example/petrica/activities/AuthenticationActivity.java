@@ -32,8 +32,6 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
 
     // Activity results code for all activities
     protected static final int RESULT_SIGN_IN = 1;
-
-    // Activity results code for all activities
     protected static final int RESULT_DELETE_ACCOUNT = 2;
 
     // Permission requests code
@@ -45,11 +43,18 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
         // Recovering the view model
         model = new ViewModelProvider(this).get(MyViewModel.class);
         model.init();
-        user = model.getUser().getValue();
+        // Observe user change (log in/ log out)
         model.getUser().observe(this, new Observer<FirebaseUser>() {
             @Override
             public void onChanged(FirebaseUser firebaseUser) {
-                user = firebaseUser;
+                if (firebaseUser == null){
+                    user = null;
+                    onUserDisconnect();
+                }
+                else {
+                    user = firebaseUser;
+                    onUserConnect();
+                }
             }
         });
     }
@@ -61,7 +66,6 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 // Authentication successful
-                model.getUser();
                 if (requestCode == RESULT_SIGN_IN){
                     if (user.getDisplayName() == null){
                         Toast.makeText(this, getString(R.string.err_retry), Toast.LENGTH_LONG).show();
@@ -146,17 +150,6 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     public void signOut(){
         if (user != null){
             model.getFirebaseAuthInstance().signOut();
-            model.getUser();
-        }
-        if (user == null){
-            Toast.makeText(this,R.string.sign_out_successful,Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this,MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
-            finish();
-        }
-        else {
-            Toast.makeText(this, R.string.err_retry, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -199,8 +192,10 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
 
     public void deleteAccount(){
         model.getFirebaseAuthInstance().signOut();
-        model.getUser();
         startLogin(RESULT_DELETE_ACCOUNT);
     }
 
+    // What to do when user log in/ out ?
+    public abstract void onUserDisconnect();
+    public abstract void onUserConnect();
 }

@@ -1,7 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
-        android:id="@+id/pref_sign_out"
         android:defaultValue="false"
         android:key="sign_out"
         android:title="@string/settings_sign_out" />
@@ -9,35 +7,30 @@
 
 
         <EditTextPreference
-            android:id="@+id/pref_old_password"
             android:defaultValue="Default value"
             android:key="old_password"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/settings_input_old_password" />
         <EditTextPreference
-            android:id="@+id/pref_new_password"
             android:defaultValue="Default value"
             android:key="new_password"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/settings_input_new_password" />
         <EditTextPreference
-            android:id="@+id/pref_conf_password"
             android:defaultValue="Default value"
             android:key="confirm_password"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="@string/settings_input_confirm_password" />
         <Preference
-            android:id="@+id/pref_change_password"
             android:defaultValue="false"
             android:key="change_password"
             android:title="@string/settings_change_password" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_cat_delete_account">
         <Preference
-            android:id="@+id/pref_delete_account"
             android:defaultValue="false"
             android:key="delete_account"
             android:title="@string/settings_cat_delete_account" />

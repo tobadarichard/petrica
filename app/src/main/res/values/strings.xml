@@ -9,7 +9,6 @@
     <string name="need_sign">You need to sign in to do this</string>
     <string name="need_sign_title">Account necessary</string>
     <string name="ok">OK</string>
-    <string name="yes">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="home_events_registered">Events you are registered for</string>
     <string name="home_events_coming">Events coming</string>
@@ -79,4 +78,6 @@
     <string name="settings_password_change_unsuccessful">Impossible to change your password : Try a stronger new password or retry later</string>
     <string name="settings_password_weak">New password too weak : it must have at least 6 characters and one digit</string>
     <string name="settings_password_incorrect_provider">You can\'t change your password with this provider : %1$s</string>
+    <string name="toolbar_add">Create an event</string>
+    <string name="err_permissions">Error : please accept permissions</string>
 </resources>

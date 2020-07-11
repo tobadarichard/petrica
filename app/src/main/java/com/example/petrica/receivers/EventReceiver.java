@@ -13,9 +13,11 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.example.petrica.R;
+import com.example.petrica.activities.BaseContentActivity;
 import com.example.petrica.activities.EventDetailsActivity;
 
 import java.util.Date;
+
 
 public class EventReceiver extends BroadcastReceiver {
     // Receiver listening for event near broadcast
@@ -25,11 +27,12 @@ public class EventReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         // Creating channel (for api >26)
-        long date_event = intent.getLongExtra("DATE",0);
+        long date_event = intent.getLongExtra(BaseContentActivity.EXTRA_DATE,0);
         long date_now = (new Date()).getTime();
         if ((date_now > date_event && intent.getAction().equals(EVENT_NEAR)) ||
                 (date_now < date_event && intent.getAction().equals(EVENT_FINISHED)))
             return; // Do nothing
+
         String CHANNEL_ID = "Event channel";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID
@@ -40,11 +43,13 @@ public class EventReceiver extends BroadcastReceiver {
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+
+        // Creating pending intent
         Intent i = new Intent(context,EventDetailsActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        i.putExtra("MUST_RETRIEVE",true);
-        i.putExtra("ID_EVENT",intent.getStringExtra("ID_EVENT"));
+        i.putExtra(BaseContentActivity.EXTRA_MUST_RETRIEVE_EVENT,true);
+        i.putExtra(BaseContentActivity.EXTRA_ID_EVENT,intent.getStringExtra(BaseContentActivity.EXTRA_ID_EVENT));
         PendingIntent pi = PendingIntent.getActivity(
                 context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT
         );
@@ -58,7 +63,7 @@ public class EventReceiver extends BroadcastReceiver {
                     .setAutoCancel(true)
                     .setContentIntent(pi)
                     .setContentTitle(context.getString(R.string.notif_event_coming_title))
-                    .setContentText(context.getString(R.string.notif_event_coming_body,intent.getStringExtra("NAME"))).build();
+                    .setContentText(context.getString(R.string.notif_event_coming_body,intent.getStringExtra(BaseContentActivity.EXTRA_NAME))).build();
         }
         else{
             notif = (new NotificationCompat.Builder(context, CHANNEL_ID))
@@ -67,11 +72,11 @@ public class EventReceiver extends BroadcastReceiver {
                     .setAutoCancel(true)
                     .setContentIntent(pi)
                     .setContentTitle(context.getString(R.string.notif_event_finished_title))
-                    .setContentText(context.getString(R.string.notif_event_finished_body,intent.getStringExtra("NAME"))).build();
+                    .setContentText(context.getString(R.string.notif_event_finished_body,intent.getStringExtra(BaseContentActivity.EXTRA_NAME))).build();
         }
         NotificationManagerCompat nmc = NotificationManagerCompat.from(context);
         int NOTIF_ID = 5;
-        nmc.notify(intent.getStringExtra("ID_EVENT"), NOTIF_ID,notif);
+        nmc.notify(intent.getStringExtra(BaseContentActivity.EXTRA_ID_EVENT), NOTIF_ID,notif);
 
     }
 }

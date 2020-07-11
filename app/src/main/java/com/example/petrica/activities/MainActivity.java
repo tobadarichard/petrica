@@ -6,14 +6,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
+import androidx.annotation.NonNull;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
 import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.model.Event;
 import com.example.petrica.views.NonScrollListView;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +27,7 @@ public class MainActivity extends BaseContentActivity {
     protected LinearLayout linear;
     public static final int EMPTY_POSITION_COMING = 5;
     public static final int EMPTY_POSITION_FOLLOWED = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,38 +40,28 @@ public class MainActivity extends BaseContentActivity {
         adapterComing = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
         NonScrollListView lw1 = findViewById(R.id.coming_events);
         lw1.setAdapter(adapterComing);
-        lw1.setOnItemClickListener(new ItemClickListener());
+        lw1.setOnItemClickListener(new ItemClickEventListener());
         // Setting observer for adapter and registered events
         adapterRegistered = new EventAdapter(new ArrayList<Event>(),getLayoutInflater());
         NonScrollListView lw2 = findViewById(R.id.registered_events);
         lw2.setAdapter(adapterRegistered);
-        lw2.setOnItemClickListener(new ItemClickListener());
+        lw2.setOnItemClickListener(new ItemClickEventListener());
 
-        // Showing welcome message if user is logged
-        model.getUser().observe(this, new Observer<FirebaseUser>() {
-            @Override
-            public void onChanged(FirebaseUser firebaseUser) {
-                if (firebaseUser != null){
-                    hello.setText(getResources().getString(R.string.hello_label,firebaseUser.getDisplayName()));
-                    hello.setVisibility(View.VISIBLE);
-                    // Activate registered events
-                    model.loadRegisteredEvents(firebaseUser);
-                }
-                else{
-                    hello.setVisibility(View.INVISIBLE);
-                    addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_registered_events));
-                }
+        if (savedInstanceState == null){
+            model.loadComingEvents();
+        }
+        else {
+            model.getServerResponseLiveData().setValue(
+                    new ServerResponse(ServerResponse.RESPONSE_COMING_EVENT,model.getSavedComing(),null,null));
+            if (user != null){
+                model.getServerResponseLiveData().setValue(
+                        new ServerResponse(ServerResponse.RESPONSE_REGISTERED_EVENT,model.getSavedRegistered(),null,null));
             }
-        });
-        model.loadComingEvents();
+        }
     }
 
     @Override
-    protected void onServerResponse(ServerResponse serverResponse) {
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
-            removeLoadingScreen();
-            return;
-        }
+    public void onServerResponse(ServerResponse serverResponse) {
         List<Event> events = serverResponse.getEventsList();
         switch (serverResponse.getResponseCode()){
             case ServerResponse.RESPONSE_COMING_EVENT:
@@ -98,10 +88,9 @@ public class MainActivity extends BaseContentActivity {
                 }
                 break;
         }
-        removeLoadingScreen();
     }
 
-    private void removeEmptyMessage(int emptyPosition) {
+    public void removeEmptyMessage(int emptyPosition) {
         switch (emptyPosition){
             case EMPTY_POSITION_COMING:
                 if (!hasEmptyMessageComing){
@@ -119,11 +108,11 @@ public class MainActivity extends BaseContentActivity {
         linear.removeViewAt(emptyPosition);
     }
 
-    private void addEmptyMessage(int emptyPosition) {
+    public void addEmptyMessage(int emptyPosition) {
         addEmptyMessage(emptyPosition,getString(R.string.no_result));
     }
 
-    private void addEmptyMessage(int emptyPosition,String message) {
+    public void addEmptyMessage(int emptyPosition,String message) {
         switch (emptyPosition){
             case EMPTY_POSITION_COMING:
                 if (hasEmptyMessageComing){
@@ -142,5 +131,43 @@ public class MainActivity extends BaseContentActivity {
         tv.setText(message);
         tv.setGravity(Gravity.CENTER);
         linear.addView(tv,emptyPosition);
+    }
+
+    @Override
+    public void onUserDisconnect() {
+        hello.setVisibility(View.INVISIBLE);
+        adapterComing.clear(true);
+        removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
+        addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_registered_events));
+    }
+
+    @Override
+    public void onUserConnect() {
+        hello.setText(getResources().getString(R.string.hello_label,user.getDisplayName()));
+        hello.setVisibility(View.VISIBLE);
+        // Activate registered events
+        model.loadRegisteredEvents(user.getUid());
+        removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
+    }
+
+    @Override
+    public void onRefresh() {
+        makeLoadingScreen();
+        adapterComing.clear(true);
+        model.loadComingEvents();
+        if (user != null){
+            adapterRegistered.clear(true);
+            model.loadRegisteredEvents(user.getUid());
+        }
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        model.setSavedComing(adapterComing.getData());
+        if (user != null){
+            model.setSavedRegistered(adapterRegistered.getData());
+        }
     }
 }

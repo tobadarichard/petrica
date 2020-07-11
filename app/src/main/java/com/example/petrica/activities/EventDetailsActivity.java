@@ -84,24 +84,7 @@ public class EventDetailsActivity extends BaseContentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupHeader(R.layout.activity_event_detail);
-        // Getting the event to show
-        boolean eventToDownload = getIntent().getBooleanExtra("MUST_RETRIEVE",false);
-        if (eventToDownload){
-            String id_event = getIntent().getStringExtra("ID_EVENT");
-            model.loadEvent(id_event);
-        }
-        else if (savedInstanceState != null){
-            event = savedInstanceState.getParcelable(EXTRA_EVENT_TOSHOW);
-            isRegister = savedInstanceState.getBoolean("isRegistered");
-            rate = savedInstanceState.getInt("rate");
-        }
-        else{
-            event = (Event) getIntent().getParcelableExtra(EXTRA_EVENT_TOSHOW);
-            if (event == null) {
-                // Finishing activity (nothing to show)
-                finish();
-            }
-        }
+
         // Finding views
         image = findViewById(R.id.image);
         label_title = findViewById(R.id.label_title);
@@ -130,7 +113,7 @@ public class EventDetailsActivity extends BaseContentActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(EventDetailsActivity.this,CommentsActivity.class);
-                intent.putExtra("ID_EVENT",event.getId_event());
+                intent.putExtra(EXTRA_ID_EVENT,event.getId_event());
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
             }
@@ -153,17 +136,31 @@ public class EventDetailsActivity extends BaseContentActivity {
                 }
             }
         });
+        // Getting the event to show
+        boolean eventToDownload = getIntent().getBooleanExtra(EXTRA_MUST_RETRIEVE_EVENT,false);
+        if (eventToDownload){
+            String id_event = getIntent().getStringExtra(EXTRA_ID_EVENT);
+            model.loadEvent(id_event);
+        }
+        else if (savedInstanceState != null){
+            event = savedInstanceState.getParcelable(EXTRA_EVENT_TOSHOW);
+            isRegister = savedInstanceState.getBoolean(EXTRA_IS_REGISTERED);
+            rate = savedInstanceState.getInt(EXTRA_RATE);
+        }
+        else{
+            event = (Event) getIntent().getParcelableExtra(EXTRA_EVENT_TOSHOW);
+            if (event == null) {
+                // Finishing activity (nothing to show)
+                finish();
+            }
+        }
         if (!eventToDownload){
             showEvent(savedInstanceState == null);
         }
     }
 
     @Override
-    protected void onServerResponse(ServerResponse serverResponse) {
-        if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_TO_IGNORE){
-            removeLoadingScreen();
-            return;
-        }
+    public void onServerResponse(ServerResponse serverResponse) {
         int oldRating = rate;
         AlarmManager alarmManager;
         PendingIntent pendingIntent;
@@ -226,9 +223,9 @@ public class EventDetailsActivity extends BaseContentActivity {
                 // Add alarm
                 Intent i = new Intent(this,EventReceiver.class);
                 i.setAction(EventReceiver.EVENT_NEAR);
-                i.putExtra("ID_EVENT",event.getId_event());
-                i.putExtra("NAME",event.getName());
-                i.putExtra("DATE",event.getDate().getTime());
+                i.putExtra(EXTRA_ID_EVENT,event.getId_event());
+                i.putExtra(EXTRA_NAME,event.getName());
+                i.putExtra(EXTRA_DATE,event.getDate().getTime());
                 alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 pendingIntent = PendingIntent.getBroadcast(this, 0, i,0);
                 alarmManager.set(AlarmManager.RTC, event.getDate().getTime() -(1000*60*60),
@@ -249,9 +246,9 @@ public class EventDetailsActivity extends BaseContentActivity {
                 alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 Intent ii = new Intent(this,EventReceiver.class);
                 ii.setAction(EventReceiver.EVENT_NEAR);
-                ii.putExtra("ID_EVENT",event.getId_event());
-                ii.putExtra("NAME",event.getName());
-                ii.putExtra("DATE",event.getDate().getTime());
+                ii.putExtra(EXTRA_ID_EVENT,event.getId_event());
+                ii.putExtra(EXTRA_NAME,event.getName());
+                ii.putExtra(EXTRA_DATE,event.getDate().getTime());
                 pendingIntent = PendingIntent.getBroadcast(this, 0, ii, 0);
                 if (pendingIntent != null && alarmManager != null) {
                     alarmManager.cancel(pendingIntent);
@@ -265,10 +262,9 @@ public class EventDetailsActivity extends BaseContentActivity {
                 Toast.makeText(this,R.string.err_retry,Toast.LENGTH_SHORT).show();
                 break;
         }
-        removeLoadingScreen();
     }
 
-    public void showEvent(boolean mustRefresh){
+    public void showEvent(boolean mustGetInfo){
         // Showing details
         Glide.with(image) // loading picture
                 .load(FirebaseStorage.getInstance().getReference().child(event.getImage_path()))
@@ -279,7 +275,7 @@ public class EventDetailsActivity extends BaseContentActivity {
             refreshRating();
             refreshRegistered();
         }
-        else if (mustRefresh){
+        else if (mustGetInfo){
             model.getInfoUserOnEvent(user.getUid(),event.getId_event());
         }
         else{
@@ -337,7 +333,35 @@ public class EventDetailsActivity extends BaseContentActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(EXTRA_EVENT_TOSHOW,event);
-        outState.putBoolean("isRegistered",isRegister);
-        outState.putInt("rate",rate);
+        outState.putBoolean(EXTRA_IS_REGISTERED,isRegister);
+        outState.putInt(EXTRA_RATE,rate);
+    }
+
+    @Override
+    public void onRefresh() {
+        model.loadEvent(event.getId_event());
+    }
+
+    @Override
+    public void onUserDisconnect() {
+        isRegister = false;
+        rate = -1;
+        refreshRating();
+        refreshRegistered();
+    }
+
+    @Override
+    public void onUserConnect() {
+        String id_event;
+        if (event != null){
+            id_event = event.getId_event();
+        }
+        else {
+            id_event = getIntent().getStringExtra(EXTRA_ID_EVENT);
+        }
+        if (id_event == null){
+            finish();
+        }
+        model.getInfoUserOnEvent(user.getUid(),id_event);
     }
 }
