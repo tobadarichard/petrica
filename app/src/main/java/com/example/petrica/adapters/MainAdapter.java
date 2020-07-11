@@ -3,7 +3,6 @@ package com.example.petrica.adapters;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MainAdapter<T> extends BaseAdapter {

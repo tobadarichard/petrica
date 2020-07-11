@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,10 @@ import com.example.petrica.R;
 import com.example.petrica.model.MyViewModel;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
@@ -27,6 +32,9 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
 
     // Activity results code for all activities
     protected static final int RESULT_SIGN_IN = 1;
+
+    // Activity results code for all activities
+    protected static final int RESULT_DELETE_ACCOUNT = 2;
 
     // Permission requests code
     public static final int PERMISSION_NETWORK = 1;
@@ -49,12 +57,36 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_SIGN_IN) {
+        if (requestCode == RESULT_SIGN_IN || requestCode == RESULT_DELETE_ACCOUNT) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 // Authentication successful
                 model.getUser();
-                Toast.makeText(this, getString(R.string.success_sign), Toast.LENGTH_SHORT).show();
+                if (requestCode == RESULT_SIGN_IN){
+                    if (user.getDisplayName() == null){
+                        Toast.makeText(this, getString(R.string.err_retry), Toast.LENGTH_LONG).show();
+                        model.getFirebaseAuthInstance().signOut();
+                        model.getUser().setValue(null);
+                    }
+                    else{
+                        Toast.makeText(this, getString(R.string.success_sign), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                Toast.makeText(AuthenticationActivity.this,R.string.settings_delete_account_successful, Toast.LENGTH_SHORT).show();
+                                model.getFirebaseAuthInstance().signOut();
+                            }
+                            else{
+                                Toast.makeText(AuthenticationActivity.this, getString(R.string.err_retry), Toast.LENGTH_LONG).show();
+                            }
+                            finish();
+                        }
+                    });
+                }
             } else {
                 // Authentication failed
                 if (response != null) {
@@ -64,7 +96,11 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
         }
     }
 
-    protected void startLogin(){
+    public void startLogin(){
+        startLogin(RESULT_SIGN_IN);
+    }
+
+    public void startLogin(int REQUEST_CODE){
         if (user != null){
             Toast.makeText(this,getString(R.string.already_login),Toast.LENGTH_SHORT).show();
         }
@@ -79,11 +115,11 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
                             .setAvailableProviders(providers)
                             .setTheme(R.style.AppTheme)
                             .build(),
-                    RESULT_SIGN_IN);
+                    REQUEST_CODE);
         }
     }
 
-    protected void askLogin(){
+    public void askLogin(){
         // Asking for login
         if (user != null){
             // Doing nothing
@@ -107,5 +143,64 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
         adb.create().show();
     }
 
+    public void signOut(){
+        if (user != null){
+            model.getFirebaseAuthInstance().signOut();
+            model.getUser();
+        }
+        if (user == null){
+            Toast.makeText(this,R.string.sign_out_successful,Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
+            finish();
+        }
+        else {
+            Toast.makeText(this, R.string.err_retry, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void changePassword(String old_p, final String new_p){
+        if (user == null){
+            askLogin();
+        }
+        else if (!user.getProviderId().equals(EmailAuthProvider.PROVIDER_ID)){
+            Toast.makeText(this,getString(R.string.settings_password_incorrect_provider,user.getProviderId())
+                    ,Toast.LENGTH_SHORT).show();
+        }
+        else if (new_p.length() < 6 || !new_p.contains("123456789")){
+            Toast.makeText(this,R.string.settings_password_weak,Toast.LENGTH_LONG).show();
+        }
+        else{
+            AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(),old_p);
+            user.reauthenticate(cred).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()){
+                        user.updatePassword(new_p).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    Toast.makeText(AuthenticationActivity.this,R.string.settings_password_change_successful,Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Toast.makeText(AuthenticationActivity.this,R.string.settings_password_change_unsuccessful,Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        Toast.makeText(AuthenticationActivity.this,R.string.err_retry,Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+    }
+
+    public void deleteAccount(){
+        model.getFirebaseAuthInstance().signOut();
+        model.getUser();
+        startLogin(RESULT_DELETE_ACCOUNT);
+    }
 
 }

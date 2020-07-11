@@ -54,7 +54,7 @@
     <string name="notif_event_finished_title">An event is finished !</string>
     <string name="notif_event_finished_body">The event %1$s just finished !</string>
     <string name="channel_name">Event info</string>
-    <string name="detail_no_data">No data avaible</string>
+    <string name="detail_no_data">No data available</string>
     <string name="comment_manage">Show only my comments</string>
     <string name="comment_add">Add a comment</string>
     <string name="comment_label_list">Comments on this event :</string>
@@ -62,4 +62,21 @@
     <string name="comment_delete_ask">Do you want to delete this comment ?</string>
     <string name="comment_write_successful">You have write a comment</string>
     <string name="comment_delete_successful">You have delete a comment</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_change_password">Change your password</string>
+    <string name="settings_cat_change_password">Change your password (ONLY IF YOU ARE USING AN EMAIL ADDRESS)</string>
+    <string name="settings_input_old_password">Old password : </string>
+    <string name="settings_input_new_password">New password : </string>
+    <string name="settings_input_confirm_password">Confirm new password : </string>
+    <string name="settings_cat_delete_account">Delete your account</string>
+    <string name="settings_pref_delete_account">Delete your account : this action is irreversible
+    and will delete all your registered events and ratings BUT your comments will stay. If you are sure,
+    choose OK and reconnect to your account</string>
+    <string name="settings_delete_account_successful">Your account has been deleted</string>
+    <string name="sign_out_successful">You have sign out</string>
+    <string name="settings_password_different">Error : passwords are not the same</string>
+    <string name="settings_password_change_successful">Your password has been changed</string>
+    <string name="settings_password_change_unsuccessful">Impossible to change your password : Try a stronger new password or retry later</string>
+    <string name="settings_password_weak">New password too weak : it must have at least 6 characters and one digit</string>
+    <string name="settings_password_incorrect_provider">You can\'t change your password with this provider : %1$s</string>
 </resources>

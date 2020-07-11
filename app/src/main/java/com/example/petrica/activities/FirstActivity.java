@@ -46,7 +46,9 @@ public class FirstActivity extends AuthenticationActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(FirstActivity.this, MainActivity.class));
-                FirstActivity.this.finish();
+                if (user != null){
+                    FirstActivity.this.finish();
+                }
             }
         });
         button_login.setOnClickListener(new View.OnClickListener() {

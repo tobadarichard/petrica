@@ -133,11 +133,15 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                 }
                 break;
             case R.id.toolbar_setting:
-                if (user == null){
-                    askLogin();
-                }
-                else{
-                    // TODO : Starting settings activity
+                if (!(this instanceof SettingsActivity)){
+                    if (user == null){
+                        askLogin();
+                    }
+                    else{
+                        Intent intent = new Intent(BaseContentActivity.this,SettingsActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        startActivity(intent);
+                    }
                 }
                 break;
         }
