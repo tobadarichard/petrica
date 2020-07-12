@@ -28,6 +28,11 @@ public class EventAdapter extends MainAdapter<Event>{
         super(data, li);
     }
 
+    @Override
+    public String getObjectId(int position) {
+        return data.get(position).getId_event();
+    }
+
     static class ViewHolder{
         public ImageView image;
         public TextView title;

@@ -9,6 +9,7 @@
     <string name="need_sign">You need to sign in to do this</string>
     <string name="need_sign_title">Account necessary</string>
     <string name="ok">OK</string>
+    <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="home_events_registered">Events you are registered for</string>
     <string name="home_events_coming">Events coming</string>
@@ -80,4 +81,19 @@
     <string name="settings_password_incorrect_provider">You can\'t change your password with this provider : %1$s</string>
     <string name="toolbar_add">Create an event</string>
     <string name="err_permissions">Error : please accept permissions</string>
+    <string name="manage_event_button">Manage my events</string>
+    <string name="manage_event_create">Create an event</string>
+    <string name="manage_event_name">Event name :</string>
+    <string name="manage_event_date">Date :</string>
+    <string name="manage_event_description">Event description</string>
+    <string name="manage_event_add_image">Add an image</string>
+    <string name="choose_image">Please choose an image</string>
+    <string name="err_name_to_short">Error : Event name must be at least 6 caracters long</string>
+    <string name="err_description_to_short">Error : description is too short</string>
+    <string name="err_no_image">Error : you must choose an image</string>
+    <string name="event_write_successful">You have created an event</string>
+    <string name="delete_event_title">Delete an event</string>
+    <string name="delete_event_message">Delete this event ? This action is irrevisble</string>
+    <string name="delete_event_successful">You have deleted an event</string>
+    <string name="err_not_organiser">Error : you are currently not allowed to create events</string>
 </resources>

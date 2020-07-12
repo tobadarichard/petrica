@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -23,6 +24,12 @@ import com.example.petrica.dao.ServerResponse;
 import com.example.petrica.model.Event;
 import com.example.petrica.receivers.EventReceiver;
 import com.example.petrica.receivers.NetworkReceiver;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+
+import java.util.Map;
 
 
 public abstract class BaseContentActivity extends AuthenticationActivity{
@@ -42,6 +49,7 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
     public static final String EXTRA_NAME = "com.example.petrica.NAME";
     public static final String EXTRA_DATE = "com.example.petrica.DATE";
     public static final String EXTRA_IS_LIST_FINISHED = "com.example.petrica.IS_LIST_FINISHED";
+    public static final String EXTRA_ORGANISER_NAME = "com.example.petrica.ORGANISER_NAME";
 
     public class ItemClickEventListener implements ListView.OnItemClickListener{
         @Override
@@ -164,6 +172,36 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                 }
                 break;
             case R.id.toolbar_add:
+                if (!(this instanceof CreateEventActivity)){
+                    if (user == null){
+                        askLogin();
+                    }
+                    else{
+                        FirebaseFunctions ff = FirebaseFunctions.getInstance();
+                        ff.getHttpsCallable("isOrganiser")
+                                .call()
+                                .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+                                        if (task.isSuccessful()){ ;
+                                            Map<String,Object> result = (Map<String, Object>) task.getResult().getData();
+                                            if (result == null || result.isEmpty()){
+                                                Toast.makeText(BaseContentActivity.this,R.string.err_not_organiser,Toast.LENGTH_LONG).show();
+                                            }
+                                            else{
+                                                Intent intent = new Intent(BaseContentActivity.this,CreateEventActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                                intent.putExtra(EXTRA_ORGANISER_NAME,(String)result.get("name_orga"));
+                                                startActivity(intent);
+                                            }
+                                        }
+                                        else{
+                                            Toast.makeText(BaseContentActivity.this,R.string.err,Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                    }
+                }
                 break;
         }
         return true;

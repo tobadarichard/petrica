@@ -33,6 +33,7 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     // Activity results code for all activities
     protected static final int RESULT_SIGN_IN = 1;
     protected static final int RESULT_DELETE_ACCOUNT = 2;
+    protected static final int RESULT_CHOOSE_IMAGE = 3;
 
     // Permission requests code
     public static final int PERMISSION_NETWORK = 1;

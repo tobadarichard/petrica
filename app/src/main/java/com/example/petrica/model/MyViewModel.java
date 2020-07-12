@@ -1,5 +1,7 @@
 package com.example.petrica.model;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -151,5 +153,18 @@ public class MyViewModel extends ViewModel{
 
     public void setSavedComment(List<Comment> savedComment) {
         this.savedComment = savedComment;
+    }
+
+    public void addEvent(Event e, Uri image){
+        DAOEvent.addEvent(e,image);
+    }
+
+    public void removeEvent(String id_event,String uid){
+        DAOEvent.removeEvent(id_event,uid);
+    }
+
+
+    public void loadEventsCreated() {
+        DAOEvent.getEventsCreatedBy(user.getValue().getUid());
     }
 }

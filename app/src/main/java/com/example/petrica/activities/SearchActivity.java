@@ -137,7 +137,7 @@ public class SearchActivity extends BaseContentActivity{
         });
 
         // Set adapter
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.theme_values,
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.theme_research_values,
                 android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         listTheme.setAdapter(adapter);

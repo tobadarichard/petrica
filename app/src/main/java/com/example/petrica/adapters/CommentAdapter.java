@@ -9,7 +9,6 @@ import com.example.petrica.R;
 import com.example.petrica.model.Comment;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CommentAdapter extends MainAdapter<Comment>{
@@ -18,20 +17,14 @@ public class CommentAdapter extends MainAdapter<Comment>{
         super(data, li);
     }
 
+    @Override
+    public String getObjectId(int position) {
+        return data.get(position).getId_comment();
+    }
+
     static class ViewHolder{
         public TextView info;
         public TextView content;
-    }
-
-    public void deleteItem(String id,boolean mustNotify){
-        List<Comment> items = new ArrayList<>();
-        for (Comment c : data){
-            if (!c.getId_comment().equals(id))
-                items.add(c);
-        }
-        data = items;
-        if (mustNotify)
-            notifyDataSetChanged();
     }
 
     @Override

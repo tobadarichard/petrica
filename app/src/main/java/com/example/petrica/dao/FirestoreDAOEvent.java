@@ -1,5 +1,7 @@
 package com.example.petrica.dao;
 
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,6 +17,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FirestoreDAOEvent {
+    protected FirebaseStorage storage;
     protected FirebaseFirestore db;
     protected MutableLiveData<ServerResponse> serverResponse;
     protected DocumentSnapshot lastVisible;
@@ -65,8 +70,9 @@ public class FirestoreDAOEvent {
         }
     }
 
-    public FirestoreDAOEvent(FirebaseFirestore db,MutableLiveData<ServerResponse> serverResponse) {
+    public FirestoreDAOEvent(FirebaseFirestore db, FirebaseStorage storage, MutableLiveData<ServerResponse> serverResponse) {
         this.db = db;
+        this.storage = storage;
         this.serverResponse = serverResponse;
     }
 
@@ -191,6 +197,22 @@ public class FirestoreDAOEvent {
                 doc.getLong("num_rate").intValue(), doc.getDouble("avg_rate"));
     }
 
+    public static Map<String,Object> eventToData(Event e) {
+        Map<String,Object> result = new HashMap<>();
+        result.put("avg_rate",e.getAvg_rate());
+        result.put("date",e.getDate());
+        result.put("description",e.getDescription());
+        result.put("id_event",e.getId_event());
+        result.put("id_organiser",e.getId_organiser());
+        result.put("image_path",e.getImage_path());
+        result.put("name",e.getName());
+        result.put("name_organiser",e.getName_organiser());
+        result.put("num_rate",e.getNum_rate());
+        result.put("num_reg",e.getNum_reg());
+        result.put("theme",e.getTheme());
+        return result;
+    }
+
     public void register(String uid, String id_event) {
         Map<String, Object> map = new HashMap<>();
         map.put("events_registered", FieldValue.arrayUnion(id_event));
@@ -228,5 +250,57 @@ public class FirestoreDAOEvent {
     public void getEvent(String id_event) {
         db.collection("events").whereEqualTo("id_event",id_event).get().addOnCompleteListener(
                 new FilteredEventsResultListener(null,ServerResponse.RESPONSE_DETAIL_EVENT_OK,ServerResponse.RESPONSE_DETAIL_EVENT_ERROR));
+    }
+
+    public void addEvent(final Event e, final Uri image) {
+        final String id_event = db.collection("events").document().getId();
+        e.setId_event(id_event);
+        e.setImage_path("images/"+e.getId_organiser()+"/"+id_event+".jpg");
+        // Uploading picture
+        storage.getReference(e.getImage_path()).putFile(image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                if (task.isSuccessful()){
+                    db.collection("events").document(id_event).set(eventToData(e)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                final List<Event> eventList = new ArrayList<>();
+                                eventList.add(e);
+                                serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_WRITING_EVENT_OK,eventList,null,null));
+                            }
+                            else{
+                                serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_WRITING_EVENT_ERROR,null,null,null));
+                                storage.getReference(e.getImage_path()).delete();
+                            }
+                        }
+                    });
+                }
+                else {
+                    serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_WRITING_EVENT_ERROR,null,null,null));
+                }
+            }
+        });
+    }
+
+    public void removeEvent(final String id_event, final String uid){
+        db.collection("events").document(id_event).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    storage.getReference("images/"+uid+"/"+id_event+".jpg").delete();
+                    serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_DELETE_EVENT_OK,null,null,null));
+                }
+                else{
+                    serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_DELETE_EVENT_ERROR,null,null,null));
+                }
+            }
+        });
+    }
+
+    public void getEventsCreatedBy(String uid) {
+        db.collection("events").whereEqualTo("id_organiser",uid).get()
+                .addOnCompleteListener(
+                        new FilteredEventsResultListener(null,ServerResponse.RESPONSE_DETAIL_EVENT_OK,ServerResponse.RESPONSE_DETAIL_EVENT_ERROR));
     }
 }
