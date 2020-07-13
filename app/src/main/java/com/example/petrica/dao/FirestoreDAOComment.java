@@ -60,7 +60,7 @@ public class FirestoreDAOComment {
     }
 
     public void getNextComments(int howMany){
-        if (lastQuery != null){
+        if (lastQuery != null && lastVisible != null){
             lastQuery.startAfter(lastVisible).limit(howMany).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -70,13 +70,20 @@ public class FirestoreDAOComment {
                             commentList.add(commentFrom(doc));
                             lastVisible = doc;
                         }
-                        serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_OK,null,null,commentList));
+                        serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_COMMENT_EVENT_NEXT,null,null,commentList));
                     }
                     else {
-                        serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_ERROR,null,null,null));
+                        serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_COMMENT_EVENT_ERROR,null,null,null));
                     }
                 }
             });
+        }
+        else if (lastQuery == null){
+            serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_TO_IGNORE,null,null,null));
+        }
+        else{
+            List<Comment> commentList = new ArrayList<>();
+            serverResponse.setValue(new ServerResponse(ServerResponse.RESPONSE_COMMENT_EVENT_NEXT,null,null,commentList));
         }
     }
 

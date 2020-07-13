@@ -2,6 +2,7 @@ package com.example.petrica.activities;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
@@ -41,6 +43,7 @@ public class SearchActivity extends BaseContentActivity{
     protected Switch onlyEventsRegistered;
     protected Date dateMin;
     protected Date dateMax;
+    protected NestedScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class SearchActivity extends BaseContentActivity{
         listResult = findViewById(R.id.list_results);
         labelResult = findViewById(R.id.label_num_results);
         onlyEventsRegistered = findViewById(R.id.switch_only_registered);
+        scrollView = findViewById(R.id.main_layout);
 
 
         // Adding listeners
@@ -146,7 +150,18 @@ public class SearchActivity extends BaseContentActivity{
         listResult.setAdapter(adapterEvent);
         listResult.setOnItemClickListener(new ItemClickEventListener());
 
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                if (!isListFinished && !adapterEvent.isEmpty() && scrollView.getChildAt(0).getBottom()
+                        <= (scrollView.getHeight() + scrollView.getScrollY())) {
+                    makeLoadingScreen();
+                    model.getNextEvents(ServerResponse.RESPONSE_SEARCHED_EVENT_NEXT,ServerResponse.RESPONSE_SEARCHED_EVENT_ERROR);
+                }
+            }
+        });
         if (savedInstanceState != null){
+            isListFinished = savedInstanceState.getBoolean(EXTRA_IS_LIST_FINISHED,false);
             model.getServerResponseLiveData().setValue(
                     new ServerResponse(ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST,model.getSavedSearch(),null,null));
         }
@@ -158,34 +173,27 @@ public class SearchActivity extends BaseContentActivity{
         switch (serverResponse.getResponseCode()) {
             case ServerResponse.RESPONSE_SEARCHED_EVENT_FIRST:
                 isListFinished = false;
-                if (events == null) {
-                    labelResult.setText(R.string.err_retry);
-                } else {
-                    int codeString = events.isEmpty() ? R.string.form_no_result : R.string.form_results;
-                    labelResult.setText(codeString);
-                    adapterEvent.clear(false);
-                    adapterEvent.addData(events);
-                }
+                int codeString = events.isEmpty() ? R.string.form_no_result : R.string.form_results;
+                labelResult.setText(codeString);
+                adapterEvent.clear(false);
+                adapterEvent.addData(events);
                 break;
             case ServerResponse.RESPONSE_SEARCHED_EVENT_NEXT:
-                if (events == null) {
-                    Toast.makeText(this, R.string.err_retry, Toast.LENGTH_LONG).show();
-                } else {
-                    adapterEvent.addData(events);
-                }
-                break;
-            case ServerResponse.RESPONSE_SEARCHED_EVENT_END:
-                if (events == null) {
-                    Toast.makeText(this, R.string.err_retry, Toast.LENGTH_LONG).show();
-                } else {
+                if (events.isEmpty()){
                     isListFinished = true;
                 }
+                adapterEvent.addData(events);
+                break;
+            case ServerResponse.RESPONSE_SEARCHED_EVENT_ERROR:
+                Toast.makeText(this, R.string.err_retry, Toast.LENGTH_LONG).show();
+                isListFinished = true;
                 break;
         }
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
+        adapterEvent.clear(true);
         searchEvents();
     }
 
@@ -221,5 +229,6 @@ public class SearchActivity extends BaseContentActivity{
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         model.setSavedSearch(adapterEvent.getData());
+        outState.putBoolean(EXTRA_IS_LIST_FINISHED,isListFinished);
     }
 }

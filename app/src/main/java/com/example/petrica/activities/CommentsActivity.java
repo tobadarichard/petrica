@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -13,6 +14,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.CommentAdapter;
@@ -30,6 +32,7 @@ public class CommentsActivity extends BaseContentActivity {
     protected Button button_send;
     protected CommentAdapter commentAdapter;
     protected String id_event;
+    protected NestedScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class CommentsActivity extends BaseContentActivity {
         switch_manage = findViewById(R.id.comment_manage);
         edit_comment = findViewById(R.id.comment_edit_write);
         button_send = findViewById(R.id.comment_send);
+        scrollView = findViewById(R.id.main_layout);
         commentAdapter = new CommentAdapter(new ArrayList<Comment>(),getLayoutInflater());
         ListView lw = findViewById(R.id.comment_list_comments);
         
@@ -123,6 +127,18 @@ public class CommentsActivity extends BaseContentActivity {
                 }
             }
         });
+
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                if (!isListFinished && !commentAdapter.isEmpty() && scrollView.getChildAt(0).getBottom()
+                        <= (scrollView.getHeight() + scrollView.getScrollY())) {
+                    makeLoadingScreen();
+                    model.getNextComments();
+                }
+            }
+        });
+
         if (savedInstanceState == null){
             model.loadComments(id_event);
         }
@@ -149,23 +165,23 @@ public class CommentsActivity extends BaseContentActivity {
                 Comment c = serverResponse.getReviewsList().get(0);
                 commentAdapter.deleteItem(c.getId_comment(),true);
                 break;
-            case ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_OK:
+            case ServerResponse.RESPONSE_COMMENT_EVENT_NEXT:
                 commentAdapter.addData(serverResponse.getReviewsList());
                 if (serverResponse.getReviewsList().isEmpty()){
                     isListFinished = true;
                 }
                 break;
-            case ServerResponse.RESPONSE_COMMENT_EVENT_NEXT_ERROR:
             case ServerResponse.RESPONSE_WRITING_COMMENT_ERROR:
             case ServerResponse.RESPONSE_COMMENT_EVENT_ERROR:
             case ServerResponse.RESPONSE_DELETE_COMMENT_ERROR:
                 Toast.makeText(this,R.string.err_retry,Toast.LENGTH_SHORT).show();
+                isListFinished = true;
                 break;
         }
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
         commentAdapter.clear(true);
         makeLoadingScreen();
         model.loadComments(id_event);

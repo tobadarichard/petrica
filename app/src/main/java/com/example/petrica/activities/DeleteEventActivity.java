@@ -80,7 +80,9 @@ public class DeleteEventActivity extends BaseContentActivity {
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
+        adapter.clear(true);
+        makeLoadingScreen();
         model.loadEventsCreated();
     }
 

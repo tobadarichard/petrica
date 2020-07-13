@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.petrica.R;
 import com.example.petrica.adapters.EventAdapter;
@@ -36,10 +37,11 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
     // Base activity containing content
     protected boolean hasLoadingScreen;
     protected AlertDialog loadingScreen;
-    protected boolean isListFinished = false;
+    protected boolean isListFinished = true;
     protected NetworkReceiver networkReceiver;
     protected EventReceiver eventReceiver;
     protected TextView connState; // TextView stating there is no connection
+    protected SwipeRefreshLayout swipe;
 
     public static final String EXTRA_EVENT_TOSHOW = "com.example.petrica.EVENT";
     public static final String EXTRA_ID_EVENT = "com.example.petrica.ID_EVENT";
@@ -70,7 +72,10 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
             @Override
             public void onChanged(ServerResponse serverResponse) {
                 removeLoadingScreen();
-                if (serverResponse.getResponseCode() != ServerResponse.RESPONSE_TO_IGNORE){
+                if (serverResponse.getResponseCode() == ServerResponse.RESPONSE_NO_NETWORK){
+                    Toast.makeText(BaseContentActivity.this,R.string.err_no_conn,Toast.LENGTH_SHORT).show();
+                }
+                else if (serverResponse.getResponseCode() != ServerResponse.RESPONSE_TO_IGNORE){
                     onServerResponse(serverResponse);
                 }
             }
@@ -118,7 +123,6 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
             public void onChanged(Boolean conn) {
                 if (conn && connState.getVisibility() == View.VISIBLE){
                     connState.setVisibility(View.INVISIBLE);
-                    onRefresh();
                 }
                 else if (!conn && connState.getVisibility() == View.INVISIBLE){
                     connState.setVisibility(View.VISIBLE);
@@ -129,6 +133,14 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                         }
                     });
                 }
+            }
+        });
+        swipe  = findViewById(R.id.swipe);
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+                swipe.setRefreshing(false);
             }
         });
     }
@@ -176,7 +188,11 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                     if (user == null){
                         askLogin();
                     }
+                    else if (!model.getHasConnection().getValue()){
+                        Toast.makeText(this,R.string.err_no_conn,Toast.LENGTH_SHORT).show();
+                    }
                     else{
+                        makeLoadingScreen();
                         FirebaseFunctions ff = FirebaseFunctions.getInstance();
                         ff.getHttpsCallable("isOrganiser")
                                 .call()
@@ -192,12 +208,14 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                                                 Intent intent = new Intent(BaseContentActivity.this,CreateEventActivity.class);
                                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                                 intent.putExtra(EXTRA_ORGANISER_NAME,(String)result.get("name_orga"));
+                                                removeLoadingScreen();
                                                 startActivity(intent);
                                             }
                                         }
                                         else{
                                             Toast.makeText(BaseContentActivity.this,R.string.err,Toast.LENGTH_LONG).show();
                                         }
+                                        removeLoadingScreen();
                                     }
                                 });
                     }
@@ -227,5 +245,5 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
 
     // What to do when server respond or when refresh data is needed ?
     public abstract void onServerResponse(ServerResponse serverResponse);
-    public abstract void onRefresh();
+    public abstract void refresh();
 }

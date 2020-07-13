@@ -131,6 +131,13 @@ public class FirestoreDAOEvent {
         if (lastQuery != null && lastVisible != null){
             lastQuery.startAfter(lastVisible).limit(20).get().addOnCompleteListener(new FilteredEventsResultListener(lastName,responseCodeOk,responseCodeError));
         }
+        else if (lastQuery == null){
+            serverResponse.setValue(new ServerResponse(responseCodeError,null,null,null));
+        }
+        else {
+            List<Event> eventList = new ArrayList<>();
+            serverResponse.setValue(new ServerResponse(responseCodeOk,eventList,null,null));
+        }
     }
 
     public void getComingEvents(int num) {

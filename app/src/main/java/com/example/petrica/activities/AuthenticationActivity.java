@@ -21,9 +21,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public abstract class AuthenticationActivity extends AppCompatActivity {
     // Activity used to ensure authentication
@@ -83,12 +85,10 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
                                 Toast.makeText(AuthenticationActivity.this,R.string.settings_delete_account_successful, Toast.LENGTH_SHORT).show();
-                                model.getFirebaseAuthInstance().signOut();
                             }
                             else{
                                 Toast.makeText(AuthenticationActivity.this, getString(R.string.err_retry), Toast.LENGTH_LONG).show();
                             }
-                            finish();
                         }
                     });
                 }
@@ -106,7 +106,7 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     }
 
     public void startLogin(int REQUEST_CODE){
-        if (user != null){
+        if (user != null && REQUEST_CODE == RESULT_SIGN_IN){
             Toast.makeText(this,getString(R.string.already_login),Toast.LENGTH_SHORT).show();
         }
         else{
@@ -157,12 +157,18 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     public void changePassword(String old_p, final String new_p){
         if (user == null){
             askLogin();
+            return;
         }
-        else if (!user.getProviderId().equals(EmailAuthProvider.PROVIDER_ID)){
-            Toast.makeText(this,getString(R.string.settings_password_incorrect_provider,user.getProviderId())
-                    ,Toast.LENGTH_SHORT).show();
+        boolean isUsingPassword = false;
+        for (UserInfo u: user.getProviderData()) {
+            if (u.getProviderId().equals("password")) {
+                isUsingPassword = true;
+            }
         }
-        else if (new_p.length() < 6 || !new_p.contains("123456789")){
+        if (!isUsingPassword){
+            Toast.makeText(this,R.string.settings_password_incorrect_provider,Toast.LENGTH_SHORT).show();
+        }
+        else if (new_p.length() < 6 || !Pattern.compile("[0-9]+").matcher(new_p).find()){
             Toast.makeText(this,R.string.settings_password_weak,Toast.LENGTH_LONG).show();
         }
         else{
@@ -192,7 +198,6 @@ public abstract class AuthenticationActivity extends AppCompatActivity {
     }
 
     public void deleteAccount(){
-        model.getFirebaseAuthInstance().signOut();
         startLogin(RESULT_DELETE_ACCOUNT);
     }
 

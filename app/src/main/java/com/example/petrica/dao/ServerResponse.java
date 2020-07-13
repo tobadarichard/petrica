@@ -1,8 +1,8 @@
 package com.example.petrica.dao;
 
+import com.example.petrica.model.Comment;
 import com.example.petrica.model.Event;
 import com.example.petrica.model.Rating;
-import com.example.petrica.model.Comment;
 
 import java.util.List;
 
@@ -17,7 +17,6 @@ public class ServerResponse {
     public static final int RESPONSE_REGISTERED_EVENT = 1;
     public static final int RESPONSE_SEARCHED_EVENT_FIRST = 2;
     public static final int RESPONSE_SEARCHED_EVENT_NEXT = 3;
-    public static final int RESPONSE_SEARCHED_EVENT_END = 4;
     public static final int RESPONSE_COMMENT_EVENT_OK = 5;
     public static final int RESPONSE_WRITING_COMMENT_OK = 6;
     public static final int RESPONSE_WRITING_COMMENT_ERROR = 7;
@@ -40,8 +39,9 @@ public class ServerResponse {
     public static final int RESPONSE_COMMENT_EVENT_ERROR = 23;
     public static final int RESPONSE_DELETE_EVENT_OK = 24;
     public static final int RESPONSE_DELETE_EVENT_ERROR = 25;
-    public static final int RESPONSE_COMMENT_EVENT_NEXT_OK = 26;
-    public static final int RESPONSE_COMMENT_EVENT_NEXT_ERROR = 27;
+    public static final int RESPONSE_COMMENT_EVENT_NEXT = 26;
+    public static final int RESPONSE_SEARCHED_EVENT_ERROR = 27;
+    public static final int RESPONSE_NO_NETWORK = 28;
 
 
     public ServerResponse(int responseCode, List<Event> eventsList, List<Rating> ratingList, List<Comment> reviewsList) {

@@ -96,7 +96,8 @@ public class CreateEventActivity extends BaseContentActivity {
         button_create.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createEvent();
+                if (model.getHasConnection().getValue())
+                    createEvent();
             }
         });
 
@@ -146,7 +147,7 @@ public class CreateEventActivity extends BaseContentActivity {
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
         // Nothing to do
     }
 

@@ -65,9 +65,9 @@
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_change_password">Change your password</string>
     <string name="settings_cat_change_password">Change your password (ONLY IF YOU ARE USING AN EMAIL ADDRESS)</string>
-    <string name="settings_input_old_password">Old password : </string>
-    <string name="settings_input_new_password">New password : </string>
-    <string name="settings_input_confirm_password">Confirm new password : </string>
+    <string name="settings_label_old_password">Old password : </string>
+    <string name="settings_label_new_password">New password : </string>
+    <string name="settings_label_confirm_password">Confirm new password : </string>
     <string name="settings_cat_delete_account">Delete your account</string>
     <string name="settings_pref_delete_account">Delete your account : this action is irreversible
     and will delete all your registered events and ratings BUT your comments will stay. If you are sure,
@@ -78,7 +78,7 @@
     <string name="settings_password_change_successful">Your password has been changed</string>
     <string name="settings_password_change_unsuccessful">Impossible to change your password : Try a stronger new password or retry later</string>
     <string name="settings_password_weak">New password too weak : it must have at least 6 characters and one digit</string>
-    <string name="settings_password_incorrect_provider">You can\'t change your password with this provider : %1$s</string>
+    <string name="settings_password_incorrect_provider">You can only change your password if you are logged in with an email and password !</string>
     <string name="toolbar_add">Create an event</string>
     <string name="err_permissions">Error : please accept permissions</string>
     <string name="manage_event_button">Manage my events</string>
@@ -96,4 +96,6 @@
     <string name="delete_event_message">Delete this event ? This action is irrevisble</string>
     <string name="delete_event_successful">You have deleted an event</string>
     <string name="err_not_organiser">Error : you are currently not allowed to create events</string>
+    <string name="err_reg">Impossible to register or unregister to this event : it has already happened</string>
+    <string name="err_no_conn">Error : no network detected</string>
 </resources>

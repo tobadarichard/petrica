@@ -37,6 +37,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'androidx.core:core:1.3.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.google.firebase:firebase-functions:19.0.2'
 
 

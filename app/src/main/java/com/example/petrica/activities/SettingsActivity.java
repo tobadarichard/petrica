@@ -5,85 +5,77 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.preference.EditTextPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.example.petrica.R;
 import com.example.petrica.dao.ServerResponse;
 
 public class SettingsActivity extends BaseContentActivity{
-    public static class SettingsFragment extends PreferenceFragmentCompat {
-        protected EditTextPreference old_password;
-        protected EditTextPreference new_password;
-        protected EditTextPreference confirm_password;
-        protected SettingsActivity parent;
-
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            parent = (SettingsActivity) getActivity();
-            old_password = findPreference("old_password");
-            new_password = findPreference("new_password");
-            confirm_password = findPreference("confirm_password");
-            Preference pref_sign_out = findPreference("sign_out");
-            pref_sign_out.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    parent.signOut();
-                    return true;
-                }
-            });
-            Preference pref_change_password = findPreference("change_password");
-            pref_change_password.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    String old_p = old_password.getText();
-                    final String new_p = new_password.getText();
-                    String conf_p = confirm_password.getText();
-                    if (!new_p.equals(conf_p)){
-                        Toast.makeText(parent,R.string.settings_password_different,Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        parent.changePassword(old_p,new_p);
-                    }
-                    return true;
-                }
-            });
-            Preference pref_delete_account = findPreference("delete_account");
-            pref_delete_account.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    AlertDialog.Builder adb = new AlertDialog.Builder(parent);
-                    adb.setMessage(R.string.settings_pref_delete_account).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (which == DialogInterface.BUTTON_POSITIVE) {
-                                parent.deleteAccount();
-                            }
-                        }
-                    }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).create().show();
-                    return true;
-                }
-            });
-        }
-    }
+    protected EditText old_password;
+    protected EditText new_password;
+    protected EditText confirm_password;
+    protected TextView sign_out;
+    protected TextView change_password;
+    protected Button delete_account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupHeader(R.layout.activity_settings);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings, new SettingsFragment())
-                .commit();
+
+        // Finding views
+        old_password = findViewById(R.id.input_old_password);
+        new_password = findViewById(R.id.input_new_password);
+        confirm_password = findViewById(R.id.input_conf_password);
+        sign_out = findViewById(R.id.label_sign_out);
+        change_password = findViewById(R.id.label_change_password);
+        delete_account = findViewById(R.id.button_delete_account);
+
+        // Adding listeners
+        sign_out.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
+        change_password.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String old_p = old_password.getText().toString();
+                final String new_p = new_password.getText().toString();
+                String conf_p = confirm_password.getText().toString();
+                if (!new_p.equals(conf_p)){
+                    Toast.makeText(SettingsActivity.this,R.string.settings_password_different,Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    changePassword(old_p,new_p);
+                }
+            }
+        });
+
+        delete_account.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder adb = new AlertDialog.Builder(SettingsActivity.this);
+                adb.setMessage(R.string.settings_pref_delete_account).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            deleteAccount();
+                        }
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).create().show();
+            }
+        });
     }
 
     @Override
@@ -107,7 +99,10 @@ public class SettingsActivity extends BaseContentActivity{
     }
 
     @Override
-    public void onRefresh() {
-        // Nothing to do
+    public void refresh() {
+        // Clear layout
+        old_password.setText("");
+        new_password.setText("");
+        confirm_password.setText("");
     }
 }

@@ -136,7 +136,7 @@ public class MainActivity extends BaseContentActivity {
     @Override
     public void onUserDisconnect() {
         hello.setVisibility(View.INVISIBLE);
-        adapterComing.clear(true);
+        adapterRegistered.clear(true);
         removeEmptyMessage(EMPTY_POSITION_FOLLOWED);
         addEmptyMessage(EMPTY_POSITION_FOLLOWED,getString(R.string.need_sign_registered_events));
     }
@@ -151,7 +151,7 @@ public class MainActivity extends BaseContentActivity {
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
         makeLoadingScreen();
         adapterComing.clear(true);
         model.loadComingEvents();

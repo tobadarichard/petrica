@@ -122,8 +122,12 @@ public class EventDetailsActivity extends BaseContentActivity {
         button_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean hasHappened = (new Date().getTime() - event.getDate().getTime()) > 0;
                 if (user == null){
                     askLogin();
+                }
+                else if (hasHappened){
+                    Toast.makeText(EventDetailsActivity.this,R.string.err_reg,Toast.LENGTH_LONG).show();
                 }
                 else {
                     makeLoadingScreen();
@@ -137,12 +141,7 @@ public class EventDetailsActivity extends BaseContentActivity {
             }
         });
         // Getting the event to show
-        boolean eventToDownload = getIntent().getBooleanExtra(EXTRA_MUST_RETRIEVE_EVENT,false);
-        if (eventToDownload){
-            String id_event = getIntent().getStringExtra(EXTRA_ID_EVENT);
-            model.loadEvent(id_event);
-        }
-        else if (savedInstanceState != null){
+        if (savedInstanceState != null){
             event = savedInstanceState.getParcelable(EXTRA_EVENT_TOSHOW);
             isRegister = savedInstanceState.getBoolean(EXTRA_IS_REGISTERED);
             rate = savedInstanceState.getInt(EXTRA_RATE);
@@ -154,7 +153,12 @@ public class EventDetailsActivity extends BaseContentActivity {
                 finish();
             }
         }
-        if (!eventToDownload){
+        boolean eventToDownload = getIntent().getBooleanExtra(EXTRA_MUST_RETRIEVE_EVENT,false);
+        if (eventToDownload && savedInstanceState == null){
+            String id_event = getIntent().getStringExtra(EXTRA_ID_EVENT);
+            model.loadEvent(id_event);
+        }
+        else{
             showEvent(savedInstanceState == null);
         }
     }
@@ -276,7 +280,7 @@ public class EventDetailsActivity extends BaseContentActivity {
             refreshRegistered();
         }
         else if (mustGetInfo){
-            model.getInfoUserOnEvent(user.getUid(),event.getId_event());
+            model.loadInfoUserOnEvent(user.getUid(),event.getId_event());
         }
         else{
             refreshRating();
@@ -338,7 +342,8 @@ public class EventDetailsActivity extends BaseContentActivity {
     }
 
     @Override
-    public void onRefresh() {
+    public void refresh() {
+        makeLoadingScreen();
         model.loadEvent(event.getId_event());
     }
 
@@ -362,6 +367,6 @@ public class EventDetailsActivity extends BaseContentActivity {
         if (id_event == null){
             finish();
         }
-        model.getInfoUserOnEvent(user.getUid(),id_event);
+        model.loadInfoUserOnEvent(user.getUid(),id_event);
     }
 }
