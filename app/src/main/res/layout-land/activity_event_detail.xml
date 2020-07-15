@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipe"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<androidx.core.widget.NestedScrollView xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -117,6 +118,7 @@
 
         <Button
             android:id="@+id/button_register"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="40dp"
@@ -153,7 +155,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_star" />
+                android:background="@drawable/baseline_star_border_black_48dp" />
 
             <Button
                 android:id="@+id/star2"
@@ -161,7 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_star" />
+                android:background="@drawable/baseline_star_border_black_48dp" />
 
             <Button
                 android:id="@+id/star3"
@@ -169,7 +171,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_star" />
+                android:background="@drawable/baseline_star_border_black_48dp" />
 
             <Button
                 android:id="@+id/star4"
@@ -177,7 +179,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_star" />
+                android:background="@drawable/baseline_star_border_black_48dp" />
 
             <Button
                 android:id="@+id/star5"
@@ -185,12 +187,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:drawable/btn_star" />
+                android:background="@drawable/baseline_star_border_black_48dp" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/button_comment"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="120dp"

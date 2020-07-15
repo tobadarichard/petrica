@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,10 +38,8 @@ public class EventDetailsActivity extends BaseContentActivity {
     protected TextView label_organiser;
     protected TextView label_date;
     protected TextView label_register;
-    protected TextView label_rate;
     protected TextView label_avg_rate;
-    protected LinearLayout star_group;
-    protected Button[] buttons_star = new Button[5];
+    protected final Button[] buttons_star = new Button[5];
     protected Button button_comment;
     protected Button button_register;
     protected Event event;
@@ -50,7 +47,7 @@ public class EventDetailsActivity extends BaseContentActivity {
     protected int rate;
 
     public class StarButtonListener implements View.OnClickListener{
-        protected int which;
+        protected final int which;
         public StarButtonListener(int which){
             super();
             this.which = which;
@@ -93,9 +90,7 @@ public class EventDetailsActivity extends BaseContentActivity {
         label_organiser = findViewById(R.id.label_organiser);
         label_register = findViewById(R.id.label_register);
         label_date = findViewById(R.id.label_date);
-        label_rate = findViewById(R.id.label_rate);
         label_avg_rate = findViewById(R.id.label_avg_rate);
-        star_group = findViewById(R.id.star_group);
         buttons_star[0] = findViewById(R.id.star1);
         buttons_star[1] = findViewById(R.id.star2);
         buttons_star[2] = findViewById(R.id.star3);
@@ -142,12 +137,12 @@ public class EventDetailsActivity extends BaseContentActivity {
         });
         // Getting the event to show
         if (savedInstanceState != null){
-            event = savedInstanceState.getParcelable(EXTRA_EVENT_TOSHOW);
+            event = savedInstanceState.getParcelable(EXTRA_EVENT_TO_SHOW);
             isRegister = savedInstanceState.getBoolean(EXTRA_IS_REGISTERED);
             rate = savedInstanceState.getInt(EXTRA_RATE);
         }
         else{
-            event = (Event) getIntent().getParcelableExtra(EXTRA_EVENT_TOSHOW);
+            event = (Event) getIntent().getParcelableExtra(EXTRA_EVENT_TO_SHOW);
             if (event == null) {
                 // Finishing activity (nothing to show)
                 finish();
@@ -316,10 +311,10 @@ public class EventDetailsActivity extends BaseContentActivity {
         // Changing state of all buttons before the one selected and the one selected
         for (int i = 0; i < 5; i++){
             if (i <= (rate-1)){
-                buttons_star[i].setBackgroundResource(android.R.drawable.btn_star_big_on);
+                buttons_star[i].setBackgroundResource(R.drawable.baseline_star_black_48dp);
             }
             else {
-                buttons_star[i].setBackgroundResource(android.R.drawable.btn_star);
+                buttons_star[i].setBackgroundResource(R.drawable.baseline_star_border_black_48dp);
             }
         }
     }
@@ -336,7 +331,7 @@ public class EventDetailsActivity extends BaseContentActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_EVENT_TOSHOW,event);
+        outState.putParcelable(EXTRA_EVENT_TO_SHOW,event);
         outState.putBoolean(EXTRA_IS_REGISTERED,isRegister);
         outState.putInt(EXTRA_RATE,rate);
     }

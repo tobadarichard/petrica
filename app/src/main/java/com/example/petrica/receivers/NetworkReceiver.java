@@ -9,7 +9,7 @@ import android.net.NetworkInfo;
 import androidx.lifecycle.MutableLiveData;
 
 public class NetworkReceiver extends BroadcastReceiver {
-    private MutableLiveData<Boolean> hasConnection;
+    private final MutableLiveData<Boolean> hasConnection;
     public NetworkReceiver(MutableLiveData<Boolean> hasConnection) {
         super();
         this.hasConnection = hasConnection;

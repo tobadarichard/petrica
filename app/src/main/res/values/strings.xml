@@ -88,12 +88,12 @@
     <string name="manage_event_description">Event description</string>
     <string name="manage_event_add_image">Add an image</string>
     <string name="choose_image">Please choose an image</string>
-    <string name="err_name_to_short">Error : Event name must be at least 6 caracters long</string>
+    <string name="err_name_to_short">Error : Event name must be at least 6 characters long</string>
     <string name="err_description_to_short">Error : description is too short</string>
     <string name="err_no_image">Error : you must choose an image</string>
     <string name="event_write_successful">You have created an event</string>
     <string name="delete_event_title">Delete an event</string>
-    <string name="delete_event_message">Delete this event ? This action is irrevisble</string>
+    <string name="delete_event_message">Delete this event ? This action is irreversible</string>
     <string name="delete_event_successful">You have deleted an event</string>
     <string name="err_not_organiser">Error : you are currently not allowed to create events</string>
     <string name="err_reg">Impossible to register or unregister to this event : it has already happened</string>

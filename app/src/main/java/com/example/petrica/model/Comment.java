@@ -22,32 +22,16 @@ public class Comment {
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public String getId_user() {
         return id_user;
-    }
-
-    public void setId_user(String id_user) {
-        this.id_user = id_user;
     }
 
     public String getName_user() {
         return name_user;
     }
 
-    public void setName_user(String name_user) {
-        this.name_user = name_user;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getId_comment() {

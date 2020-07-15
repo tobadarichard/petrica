@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FirestoreDAORating {
-    protected MutableLiveData<ServerResponse> serverResponse;
-    protected FirebaseFirestore db;
+    protected final MutableLiveData<ServerResponse> serverResponse;
+    protected final FirebaseFirestore db;
 
     public FirestoreDAORating(FirebaseFirestore db, MutableLiveData<ServerResponse> serverResponse){
         this.db = db;

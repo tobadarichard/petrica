@@ -43,7 +43,7 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
     protected TextView connState; // TextView stating there is no connection
     protected SwipeRefreshLayout swipe;
 
-    public static final String EXTRA_EVENT_TOSHOW = "com.example.petrica.EVENT";
+    public static final String EXTRA_EVENT_TO_SHOW = "com.example.petrica.EVENT";
     public static final String EXTRA_ID_EVENT = "com.example.petrica.ID_EVENT";
     public static final String EXTRA_MUST_RETRIEVE_EVENT = "com.example.petrica.MUST_RETRIEVE_EVENT";
     public static final String EXTRA_IS_REGISTERED = "com.example.petrica.IS_REGISTERED";
@@ -59,7 +59,7 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
             EventAdapter eventAdapter = (EventAdapter) parent.getAdapter();
             Event event = (Event) eventAdapter.getItem(position);
             Intent i = new Intent(BaseContentActivity.this,EventDetailsActivity.class);
-            i.putExtra(EXTRA_EVENT_TOSHOW,event);
+            i.putExtra(EXTRA_EVENT_TO_SHOW,event);
             startActivity(i);
         }
     }
@@ -199,7 +199,7 @@ public abstract class BaseContentActivity extends AuthenticationActivity{
                                 .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
                                     @Override
                                     public void onComplete(@NonNull Task<HttpsCallableResult> task) {
-                                        if (task.isSuccessful()){ ;
+                                        if (task.isSuccessful()){
                                             Map<String,Object> result = (Map<String, Object>) task.getResult().getData();
                                             if (result == null || result.isEmpty()){
                                                 Toast.makeText(BaseContentActivity.this,R.string.err_not_organiser,Toast.LENGTH_LONG).show();

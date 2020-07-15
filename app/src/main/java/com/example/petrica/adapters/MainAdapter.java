@@ -8,7 +8,7 @@ import java.util.List;
 
 public abstract class MainAdapter<T> extends BaseAdapter {
     protected List<T> data;
-    protected LayoutInflater li;
+    protected final LayoutInflater li;
 
     public MainAdapter(List<T> data, LayoutInflater li){
         this.data = data;

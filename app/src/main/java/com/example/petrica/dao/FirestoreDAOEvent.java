@@ -27,17 +27,17 @@ import java.util.List;
 import java.util.Map;
 
 public class FirestoreDAOEvent {
-    protected FirebaseStorage storage;
-    protected FirebaseFirestore db;
-    protected MutableLiveData<ServerResponse> serverResponse;
+    protected final FirebaseStorage storage;
+    protected final FirebaseFirestore db;
+    protected final MutableLiveData<ServerResponse> serverResponse;
     protected DocumentSnapshot lastVisible;
     protected Query lastQuery;
     protected String lastName;
 
     public class FilteredEventsResultListener implements OnCompleteListener<QuerySnapshot>{
-        private int responseCodeOk;
-        private int responseCodeError;
-        private String name;
+        private final int responseCodeOk;
+        private final int responseCodeError;
+        private final String name;
 
         public FilteredEventsResultListener(String name,int responseCodeOk,int responseCodeError) {
             this.name = name;
@@ -54,7 +54,7 @@ public class FirestoreDAOEvent {
                 lastVisible = null;
                 List<Event> events = new ArrayList<>();
                 for (QueryDocumentSnapshot doc : result) {
-                    // Filtred by name
+                    // Filtered by name
                     if (name == null || doc.getString("name").contains(name)){
                         lastVisible = doc;
                         events.add(getEventFrom(doc));

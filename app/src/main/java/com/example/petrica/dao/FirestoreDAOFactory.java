@@ -6,8 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 public class FirestoreDAOFactory {
-    protected FirebaseFirestore db;
-    protected FirebaseStorage storage;
+    protected final FirebaseFirestore db;
+    protected final FirebaseStorage storage;
     protected static FirestoreDAOFactory factory;
     private FirestoreDAOFactory(){
         this.storage = FirebaseStorage.getInstance();

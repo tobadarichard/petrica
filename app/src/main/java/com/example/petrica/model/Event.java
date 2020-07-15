@@ -63,32 +63,16 @@ public class Event implements Parcelable {
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getId_organiser() {
         return id_organiser;
     }
 
-    public void setId_organiser(String id_organiser) {
-        this.id_organiser = id_organiser;
-    }
-
     public String getName_organiser() {
         return name_organiser;
-    }
-
-    public void setName_organiser(String name_organiser) {
-        this.name_organiser = name_organiser;
     }
 
     public String getImage_path() {
@@ -103,16 +87,8 @@ public class Event implements Parcelable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getTheme() {
         return theme;
-    }
-
-    public void setTheme(String theme) {
-        this.theme = theme;
     }
 
     public String getId_event() {
@@ -135,16 +111,8 @@ public class Event implements Parcelable {
         return num_rate;
     }
 
-    public void setNum_rate(int num_rate) {
-        this.num_rate = num_rate;
-    }
-
     public double getAvg_rate() {
         return avg_rate;
-    }
-
-    public void setAvg_rate(double avg_rate) {
-        this.avg_rate = avg_rate;
     }
 
     @Override

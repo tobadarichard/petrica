@@ -55,31 +55,16 @@ public class ServerResponse {
         return responseCode;
     }
 
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
     public List<Event> getEventsList() {
         return eventsList;
-    }
-
-    public void setEventsList(List<Event> eventsList) {
-        this.eventsList = eventsList;
     }
 
     public List<Rating> getRatingList() {
         return ratingList;
     }
 
-    public void setRatingList(List<Rating> ratingList) {
-        this.ratingList = ratingList;
-    }
-
     public List<Comment> getReviewsList() {
         return reviewsList;
     }
 
-    public void setReviewsList(List<Comment> reviewsList) {
-        this.reviewsList = reviewsList;
-    }
 }

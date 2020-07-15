@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.petrica.R;
@@ -18,8 +17,8 @@ public class SettingsActivity extends BaseContentActivity{
     protected EditText old_password;
     protected EditText new_password;
     protected EditText confirm_password;
-    protected TextView sign_out;
-    protected TextView change_password;
+    protected Button sign_out;
+    protected Button change_password;
     protected Button delete_account;
 
     @Override

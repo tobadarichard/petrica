@@ -20,9 +20,9 @@ import java.util.List;
 public class MyViewModel extends ViewModel{
     // Model containing data that should outlive activity
     private FirebaseAuth firebaseAuthInstance;
-    private MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
-    private MutableLiveData<Boolean> hasConnection = new MutableLiveData<>();
-    private MutableLiveData<ServerResponse> serverResponseLiveData = new MutableLiveData<>();
+    private final MutableLiveData<FirebaseUser> user = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> hasConnection = new MutableLiveData<>();
+    private final MutableLiveData<ServerResponse> serverResponseLiveData = new MutableLiveData<>();
     private FirestoreDAOEvent DAOEvent;
     private FirestoreDAORating DAORating;
     private FirestoreDAOComment DAOComment;

@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FirestoreDAOComment {
-    protected FirebaseFirestore db;
-    protected MutableLiveData<ServerResponse> serverResponse;
+    protected final FirebaseFirestore db;
+    protected final MutableLiveData<ServerResponse> serverResponse;
     protected DocumentSnapshot lastVisible;
     protected Query lastQuery;
 
