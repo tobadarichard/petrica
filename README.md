@@ -5,15 +5,16 @@ Back-end is made with [Firebase](https://firebase.google.com/).
 ## Installation
 To build the app :
 * Clone the master branch of repo
+* Copy the folder **installation** elsewhere
 * Create an [Android project with Firebase](https://firebase.google.com/docs/android/setup) (don't forget the Sha-1 certificate)
 * Copy the google-services.json in the app folder
 * Build with Android Studio
 
 To configure Firebase :
-* Clone the installation branch of repo
+* Open the folder **installation**
 * Go into your firebase project settings
 * Copy the rules (Storage rules.txt and Firestore rules.txt) into appropriate section in your firebase project [(see guide)](https://firebase.google.com/docs/guides)
-* [Add the functions](https://firebase.google.com/docs/functions/get-started) (firebase-funct folder)
+* [Add the functions](https://firebase.google.com/docs/functions/get-started) (index.js)
 * Active Firebase Authentication with Google and Email
 
 If you want to add some as organiser (ie he will be able to create events) :

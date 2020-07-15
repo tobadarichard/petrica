@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	match /organisers/{doc_id} {
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/organisers/$(doc_id)) && get(/databases/$(database)/documents/organisers/$(doc_id)).data.id_user == request.auth.uid;
+    }
+    match /events/{document=**} {
+      allow read: if true;
+    }
+    match /events/{doc_id} {
+      allow write: if request.auth != null 
+      && exists(/databases/$(database)/documents/organisers/$(request.auth.uid)) 
+      && (!exists(/databases/$(database)/documents/events/$(doc_id))
+      || get(/databases/$(database)/documents/events/$(doc_id)).data.id_organiser == request.auth.uid);
+    }
+    match /ratings/{document=**} {
+      allow read: if true;
+    }
+    match /reviews/{document=**} {
+      allow read: if true;
+    }
+    match /registered/{document=**} {
+      allow read: if true;
+    }
+    match /ratings/{doc_id}/ratings/{user_id} {
+      allow write: if request.auth != null && request.auth.uid == user_id;
+    }
+    match /registered/{user_id} {
+      allow write: if request.auth != null && request.auth.uid == user_id;
+    }
+    match /reviews/{doc_id}/reviews/{comment_id} {
+      allow write: if request.auth != null && (!exists(/databases/$(database)/documents/reviews/$(doc_id)/reviews/$(comment_id)) || (request.auth.uid == get(/databases/$(database)/documents/reviews/$(doc_id)/reviews/$(comment_id)).data.id_user));
+  	}
+  }
+}

@@ -1,0 +1,15 @@
+rules_version = '2';
+
+
+service firebase.storage {
+  match /b/{bucket}/o {
+      // Anyone can view any image (no auth, publicly readable)
+      match /{allImages=**} {
+        allow read;
+      }
+      // Only authorized users can write to images
+      match /images/{user_id}/{image} {
+        allow write: if request.auth != null && request.auth.uid == user_id;
+      }
+    }
+}
