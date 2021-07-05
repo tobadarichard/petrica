@@ -3,18 +3,18 @@ Petrica is an Android app for events managements. You find interesting events fo
 Back-end is made with [Firebase](https://firebase.google.com/).
 
 ## Screenshots
-![Startup anim](screenshots/start.gif)
-![Startup anim](screenshots/login.jpg)
-![Startup anim](screenshots/home-1.jpg)
-![Startup anim](screenshots/home-2.jpg)
-![Startup anim](screenshots/create-event-1.jpg)
-![Startup anim](screenshots/create-event-2.jpg)
-![Startup anim](screenshots/event-1.jpg)
-![Startup anim](screenshots/event-2.jpg)
-![Startup anim](screenshots/event-comment.jpg)
-![Startup anim](screenshots/search-1.jpg)
-![Startup anim](screenshots/search-results.jpg)
-![Startup anim](screenshots/settings.jpg)
+![Startup animation](screenshots/start.gif)&nbsp;&nbsp;&nbsp;
+![Login page](screenshots/login.jpg)&nbsp;&nbsp;&nbsp;
+![Home page 1](screenshots/home-1.jpg)&nbsp;&nbsp;&nbsp;
+![Home page 2](screenshots/home-2.jpg)&nbsp;&nbsp;&nbsp;
+![Event creation 1](screenshots/create-event-1.jpg)&nbsp;&nbsp;&nbsp;
+![Event creation 2](screenshots/create-event-2.jpg)&nbsp;&nbsp;&nbsp;
+![Event details 1](screenshots/event-1.jpg)&nbsp;&nbsp;&nbsp;
+![Event details 2](screenshots/event-2.jpg)&nbsp;&nbsp;&nbsp;
+![Event comments](screenshots/event-comment.jpg)&nbsp;&nbsp;&nbsp;
+![Search page 1](screenshots/search-1.jpg)&nbsp;&nbsp;&nbsp;
+![Search page 2](screenshots/search-results.jpg)&nbsp;&nbsp;&nbsp;
+![Settings](screenshots/settings.jpg)&nbsp;&nbsp;&nbsp;
 
 ## Installation
 To build the app :
