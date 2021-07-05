@@ -103,7 +103,7 @@ public class SearchActivity extends BaseContentActivity{
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 Calendar c = Calendar.getInstance();
                 c.clear();
-                c.set(year,month,dayOfMonth);
+                c.set(year,month,dayOfMonth,12,0);
                 dateMin = c.getTime();
             }
         });
@@ -125,7 +125,7 @@ public class SearchActivity extends BaseContentActivity{
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 Calendar c = Calendar.getInstance();
                 c.clear();
-                c.set(year,month,dayOfMonth);
+                c.set(year,month,dayOfMonth,12,0);
                 dateMax = c.getTime();
             }
         });

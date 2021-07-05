@@ -2,6 +2,20 @@
 Petrica is an Android app for events managements. You find interesting events for you and register to them. You can also organise events.
 Back-end is made with [Firebase](https://firebase.google.com/).
 
+## Screenshots
+![Startup anim](screenshots/start.gif)
+![Startup anim](screenshots/login.jpg)
+![Startup anim](screenshots/home-1.jpg)
+![Startup anim](screenshots/home-2.jpg)
+![Startup anim](screenshots/create-event-1.jpg)
+![Startup anim](screenshots/create-event-2.jpg)
+![Startup anim](screenshots/event-1.jpg)
+![Startup anim](screenshots/event-2.jpg)
+![Startup anim](screenshots/event-comment.jpg)
+![Startup anim](screenshots/search-1.jpg)
+![Startup anim](screenshots/search-results.jpg)
+![Startup anim](screenshots/settings.jpg)
+
 ## Installation
 To build the app :
 * Clone the master branch of repo

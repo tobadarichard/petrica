@@ -1,11 +1,18 @@
 <resources>
     <string-array name="theme_research_values">
-        <item>Music</item>
         <item>Any</item>
+        <item>Music</item>
         <item>Dance</item>
+        <item>Conference</item>
+        <item>Class</item>
+        <item>Fun</item>
     </string-array>
     <string-array name="theme_values">
         <item>Music</item>
         <item>Dance</item>
+        <item>Conference</item>
+        <item>Class</item>
+        <item>Fun</item>
+        <item>Other</item>
     </string-array>
 </resources>
